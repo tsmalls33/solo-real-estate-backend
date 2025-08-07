@@ -1,0 +1,16 @@
+-- CreateEnum
+CREATE TYPE "public"."Role" AS ENUM ('CLIENT', 'EMPLOYEE', 'ADMIN', 'SUPERADMIN');
+
+-- CreateTable
+CREATE TABLE "public"."User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password_hash" TEXT NOT NULL,
+    "full_name" TEXT NOT NULL,
+    "role" "public"."Role" NOT NULL DEFAULT 'CLIENT',
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
