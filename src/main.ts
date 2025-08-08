@@ -20,7 +20,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   console.log(`Application is running on PORT ${process.env.PORT}`);
-  console.log(`DATABASE_URL: ${process.env.DATABASE_URL}`);
 
   await app.listen(process.env.PORT ?? 3000);
 }

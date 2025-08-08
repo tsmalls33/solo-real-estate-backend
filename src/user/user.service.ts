@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -31,10 +32,10 @@ export class UserService {
     });
   }
   
-  // async findAll() {
-  //   const allUsers = await this.prisma.user.findAll();
-  //   return allUsers; // Does this return the format we need ? Print test this to see what it returns.
-  // }
+  async findAll() {
+    const allUsers = await this.prisma.user.findMany(); // Returns array of User objects --> User[]
+    console.log('All users:', allUsers);
+    return allUsers;   }
   
   // findAll() {
   //   return `This action returns all user`;
