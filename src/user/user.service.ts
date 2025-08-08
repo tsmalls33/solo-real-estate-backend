@@ -15,7 +15,7 @@ export class UserService {
       },
     });
 
-    if (isUserExists) throw new Error('User already exists');
+    if (isUserExists) throw new Error('User already exists'); // why does this not return the error in the response ?
 
     // TODO: Hash password here
     
@@ -29,21 +29,37 @@ export class UserService {
 
     return this.prisma.user.create({
       data: dbUser,
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        role: true,
+      },
     });
   }
   
   async findAll() {
-    const allUsers = await this.prisma.user.findMany(); // Returns array of User objects --> User[]
-    console.log('All users:', allUsers);
-    return allUsers;   }
+    // Returns array of User objects --> User[]
+    return await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true, 
+        full_name: true,
+        role: true,
+      }
+    });   }
   
-  // findAll() {
-  //   return `This action returns all user`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async findOne(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        role: true,
+      },
+    }) 
+  }
 
   // update(id: number, updateUserDto: UpdateUserDto) {
   //   return `This action updates a #${id} user`;
