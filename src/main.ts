@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,7 +11,16 @@ async function bootstrap() {
     credentials: true,
   });
 
+  const config = new DocumentBuilder()
+    .setTitle('Real Estate Backend')
+    .setDescription('API documentation for the Real Estate Backend')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
   console.log(`Application is running on PORT ${process.env.PORT}`);
+  console.log(`DATABASE_URL: ${process.env.DATABASE_URL}`);
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -29,6 +29,7 @@
 
 ```bash
 $ pnpm install
+$ docker compose -f {docker-compose.yml file or similar} up -d 
 ```
 
 ## Compile and run the project

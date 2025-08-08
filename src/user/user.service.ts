@@ -16,11 +16,26 @@ export class UserService {
 
     if (isUserExists) throw new Error('User already exists');
 
+    // TODO: Hash password here
+    
+
+    const dbUser = {
+      email: createUserDto.email,
+      password_hash: createUserDto.password, // This should be hashed before saving
+      full_name: createUserDto.full_name,
+      role: createUserDto.role,
+    }
+
     return this.prisma.user.create({
-      data: createUserDto,
+      data: dbUser,
     });
   }
-
+  
+  // async findAll() {
+  //   const allUsers = await this.prisma.user.findAll();
+  //   return allUsers; // Does this return the format we need ? Print test this to see what it returns.
+  // }
+  
   // findAll() {
   //   return `This action returns all user`;
   // }

@@ -14,13 +14,27 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String
+  id            String   @id @default(uuid())
+  email         String
   password_hash String
-  full_name String
-  role Role @default(CLIENT)
+  full_name     String
+  role          Role     @default(CLIENT)
+  tenant_id     String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  tenant        Tenant?  @relation("TenantUsers", fields: [tenant_id], references: [id])
 
   @@unique([email])
+}
+
+// The tenant model represents an agency, which will have multiple users associated with it.
+model Tenant {
+  id         String   @id @default(uuid())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  users      User[]   @relation("TenantUsers")
 }
 
 enum Role {
@@ -29,4 +43,3 @@ enum Role {
   ADMIN
   SUPERADMIN
 }
-  
