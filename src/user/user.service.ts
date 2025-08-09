@@ -4,8 +4,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
-// TODO: Need data validation for inproper input. Right now we only get a 500 error if the input is not valid.
-
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -62,9 +60,7 @@ export class UserService {
       },
     });
 
-    if (!foundUser) {
-      throw new NotFoundException('User not found'); // returns 404 Not Found
-    };
+    if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
     return foundUser;
   }
@@ -81,6 +77,7 @@ export class UserService {
       },
     });
 
+    // TODO: Use response interceptors for this
     return {
       code: 200,
       message: 'User updated successfully',
@@ -99,6 +96,7 @@ export class UserService {
       },
     });
 
+    // TODO: Use response interceptors for this
     return {
       code: 200,
       message: 'User deleted successfully',
