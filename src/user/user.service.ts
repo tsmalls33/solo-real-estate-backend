@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,11 +17,10 @@ export class UserService {
       },
     });
 
-    if (isUserExists) throw new Error('User already exists'); // why does this not return the error in the response ?
+    if (isUserExists) throw new ConflictException('User already exists'); // returns 409 Conflict
 
     // TODO: Hash password here
     
-
     const dbUser = {
       email: createUserDto.email,
       password_hash: createUserDto.password, // This should be hashed before saving
@@ -64,7 +63,7 @@ export class UserService {
     });
 
     if (!foundUser) {
-      throw new Error('User not found'); // TODO: Still returns a 500 error, need to handle this properly
+      throw new NotFoundException('User not found'); // returns 404 Not Found
     };
 
     return foundUser;
