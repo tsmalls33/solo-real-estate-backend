@@ -15,16 +15,18 @@ model User {
   role          Role     @default(CLIENT)
   created_at    DateTime @default(now())
   tenant_id     String?
-  updated_at    DateTime @updatedAt
+  updated_at    DateTime @default(now()) @updatedAt
   tenant        Tenant?  @relation("TenantUsers", fields: [tenant_id], references: [id])
 }
 
 model Tenant {
-  id         String   @id @default(uuid())
-  name       String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  users      User[]   @relation("TenantUsers")
+  id            String   @id @default(uuid())
+  name          String   @unique
+  custom_domain String?
+  users         User[]   @relation("TenantUsers")
+  plan_id       String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
 }
 
 enum Role {
