@@ -7,7 +7,12 @@ import { UserModule } from './user/user.module';
 import { TenantModule } from './tenant/tenant.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, UserModule, TenantModule],
+  imports: [
+    ConfigModule.forRoot({ envFilePath: './env/.env' }), 
+    PrismaModule,
+    UserModule,
+    TenantModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

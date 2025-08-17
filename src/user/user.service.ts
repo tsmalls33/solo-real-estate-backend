@@ -95,7 +95,7 @@ export class UserService {
       },
     });
 
-    // TODO: Use response interceptors for this
+    // TODO: Use response interceptors wrapping the responses with codes and messages for all successful reaponses
     return {
       code: 200,
       message: 'User updated successfully',

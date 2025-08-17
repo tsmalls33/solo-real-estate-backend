@@ -1,0 +1,19 @@
+services:
+  test-real-estate-database:
+    container_name: test-real-estate-database
+    image: postgres:17.5-alpine3.22
+    ports:
+      - '5431:5431'
+    environment:
+      POSTGRES_DB: 'real-estate-db-test'
+      POSTGRES_PASSWORD: 'testpw'
+      POSTGRES_USER: 'postgres-test'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - postgres.service
