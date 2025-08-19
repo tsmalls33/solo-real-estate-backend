@@ -6,8 +6,6 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
 import { ConfigService } from '@nestjs/config'; // Import ConfigService to access environment variables
 
-// TODO: Add password hashing and validation logic
-
 @Injectable()
 export class UserService {
   private readonly saltOrRounds: number; // Number of salt rounds for bcrypt
@@ -76,6 +74,7 @@ export class UserService {
         email: true,
         full_name: true,
         role: true,
+        tenant_id: true, 
       },
     });
 
