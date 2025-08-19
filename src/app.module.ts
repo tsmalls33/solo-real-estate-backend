@@ -8,7 +8,10 @@ import { TenantModule } from './tenant/tenant.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: './env/.env' }), 
+    ConfigModule.forRoot({ 
+      envFilePath: ['.env'],
+      isGlobal: true, // Makes the configuration available globally
+    }), 
     PrismaModule,
     UserModule,
     TenantModule

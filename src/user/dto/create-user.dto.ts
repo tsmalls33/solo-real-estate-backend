@@ -1,5 +1,5 @@
 import { Role } from '../user-roles';
-import { IsEmail, IsNotEmpty, MinLength, IsAlpha, IsUUID, IsOptional, Matches } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, MinLength, IsAlpha, IsUUID, IsOptional, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
@@ -7,7 +7,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
-  @MinLength(6)
+  @IsString()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message:
+      'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number and one special character',
+  })
   password: string;
 
   @IsOptional()

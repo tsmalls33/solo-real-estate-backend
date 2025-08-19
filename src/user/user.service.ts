@@ -3,13 +3,28 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-
+import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
+import { ConfigService } from '@nestjs/config'; // Import ConfigService to access environment variables
 
 // TODO: Add password hashing and validation logic
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly saltOrRounds: number; // Number of salt rounds for bcrypt
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService, // Inject ConfigService for environment variables
+  ) {
+    const raw = this.configService.get<string>('BCRYPT_SALT_ROUNDS') || 10; // Default to 10 if not set
+    const rounds = Number(raw);
+    if (isNaN(rounds) || rounds < 4 || rounds > 15) {
+      throw new Error(`Invalid BCRYPT_SALT_ROUNDS value: ${raw}. It must be a positive integer between 4 and 15.`);
+    }
+    this.saltOrRounds = rounds; // Set the salt rounds for bcrypt
+    console.log(`BCRYPT_SALT_ROUNDS set to: ${this.saltOrRounds}`); // Log the salt rounds for debugging
+  }
+  
 
   async create(createUserDto: CreateUserDto) {
     const isUserExists = await this.prisma.user.findUnique({
@@ -20,9 +35,10 @@ export class UserService {
 
     if (isUserExists) throw new ConflictException('User already exists'); // returns 409 Conflict
 
+    const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltOrRounds);
     const dbUser = {
       email: createUserDto.email,
-      password_hash: createUserDto.password, // This should be hashed before saving
+      password_hash: hashedPassword, // Store hashed password
       full_name: createUserDto.full_name,
       role: createUserDto.role,
       tenant_id: createUserDto.tenant_id, // Optional, if user is created within a tenant context
