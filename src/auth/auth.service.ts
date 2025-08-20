@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignInDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly prismaService: PrismaService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -21,15 +23,22 @@ export class AuthService {
   }
 
   async signin(SignInDto) {
+
     // TODO: Implement your signin logic here, e.g., generating JWT tokens
+    // Deconstruct the DTO
     const { email, password } = SignInDto;
+
     const user = await this.validateUser(email, password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    // Here you would typically generate a JWT token or session token
-    // For simplicity, let's assume we return a dummy token
-    return { accessToken: 'dummy-signin-token' }; // Replace with actual token generation logic
+
+    // Generate JWT token
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = await this.jwtService.signAsync(payload, {expiresIn: '1h'});
+    const refreshToken = await this.jwtService.signAsync(payload, {expiresIn: '7d', secret: process.env.JWT_REFRESH_SECRET});
+  
+    return { accessToken, refreshToken }; 
   }
 
   async signup(SignUpDto) {
@@ -39,10 +48,22 @@ export class AuthService {
       email,
       password, // Ensure to hash the password in the user service
     });
-    // Here you would typically generate a JWT token or session token
-    // For simplicity, let's assume we return a dummy token
-    return { accessToken: 'dummy-signup-token' }; // Replace with actual token generation logic
+    return newUser;
 
+  }
+
+  async refreshToken(refreshToken: string) {
+    const payload = await this.jwtService.verifyAsync(refreshToken, {
+    secret: process.env.JWT_REFRESH_SECRET,
+    });
+
+    const newAccessToken = await this.jwtService.signAsync(
+      { sub: payload.sub, email: payload.email },
+      { expiresIn: '1h' },
+    );
+
+    return { accessToken: newAccessToken };
+    
   }
 
 }

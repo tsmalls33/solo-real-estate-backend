@@ -48,7 +48,7 @@ export class UserService {
       dbUser.tenant = {
         connect: { id: tenant_id },
       };
-}
+    }
   
 
     return this.prisma.user.create({
