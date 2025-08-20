@@ -8,6 +8,7 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
     message:
       'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number and one special character',
@@ -18,12 +19,11 @@ export class CreateUserDto {
   @Matches(/^[A-Za-z\s]+$/, {
       message: 'Full name must contain only letters and spaces',
     })
-  full_name: string;
+  full_name?: string;
 
-  @Transform(({value}) => value || 'CLIENT') // Default role if not provided
-  role: Role;
+  role?: Role; // Default role is handled in the DB
 
   @IsOptional()
   @IsUUID()
-  tenant_id: string; // Optional, if user is created within a tenant context
+  tenant_id?: string; // Optional, if user is created within a tenant context
 }

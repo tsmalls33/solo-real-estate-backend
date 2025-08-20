@@ -34,13 +34,22 @@ export class UserService {
     if (isUserExists) throw new ConflictException('User already exists'); // returns 409 Conflict
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltOrRounds);
-    const dbUser = {
-      email: createUserDto.email,
-      password_hash: hashedPassword, // Store hashed password
-      full_name: createUserDto.full_name,
-      role: createUserDto.role,
-      tenant_id: createUserDto.tenant_id, // Optional, if user is created within a tenant context
-    }
+    
+    const {email, full_name, role, tenant_id} = createUserDto;
+    const dbUser: Prisma.UserCreateInput = {
+      email: email,
+      password_hash: hashedPassword,
+    };
+
+    // Include only if they exist, handling typescript's strict null checks
+    if (full_name) dbUser.full_name = full_name;
+    if (role) dbUser.role = role;
+    if (tenant_id) {
+      dbUser.tenant = {
+        connect: { id: tenant_id },
+      };
+}
+  
 
     return this.prisma.user.create({
       data: dbUser,
@@ -80,6 +89,22 @@ export class UserService {
 
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
+    return foundUser;
+  }
+
+  async findByEmail(email: string) {
+    const foundUser = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        role: true,
+        tenant_id: true, // Optional, if user is created within a tenant context
+        password_hash: true, 
+      },
+    });
+    if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
     return foundUser;
   }
 
@@ -144,4 +169,10 @@ export class UserService {
       data: deletedUser,
     }
   }
+
+  async comparePassword(plainTextPassword: string, hashedPassword: string) {
+  // Compare plain text password with hashed password
+  return bcrypt.compare(plainTextPassword, hashedPassword);
+  }
+
 }
