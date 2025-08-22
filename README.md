@@ -29,6 +29,7 @@
 
 ```bash
 $ pnpm install
+$ docker compose -f {docker-compose.yml file or similar} up -d 
 ```
 
 ## Compile and run the project
@@ -56,6 +57,15 @@ $ pnpm run test:e2e
 # test coverage
 $ pnpm run test:cov
 ```
+
+## Database actions 
+
+```bash
+# migrate a database change 
+$ pnpm prisma migrate dev --name "migration name"
+$ pnpm prisma generate
+```
+
 
 ## Deployment
 
