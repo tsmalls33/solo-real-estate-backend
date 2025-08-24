@@ -1,80 +1,69 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
-import { ConfigService } from '@nestjs/config'; // Import ConfigService to access environment variables
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  private readonly saltOrRounds: number; // Number of salt rounds for bcrypt
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService, // Inject ConfigService for environment variables
-  ) {
-    const raw = this.configService.get<string>('BCRYPT_SALT_ROUNDS') || 10; // Default to 10 if not set
-    const rounds = Number(raw);
-    if (isNaN(rounds) || rounds < 4 || rounds > 15) {
-      throw new Error(`Invalid BCRYPT_SALT_ROUNDS value: ${raw}. It must be a positive integer between 4 and 15.`);
-    }
-    this.saltOrRounds = rounds; // Set the salt rounds for bcrypt
-    console.log(`BCRYPT_SALT_ROUNDS set to: ${this.saltOrRounds}`); // Log the salt rounds for debugging
-  }
-  
+  async create(input: CreateUserDto) {
+    /**
+     * - Validate user input (handled by class-validator)
+     * - Check if user already exists
+     * - Hash password
+     * - Create user
+     */
 
-  async create(createUserDto: CreateUserDto) {
+    // Check if user already exists
     const isUserExists = await this.prisma.user.findUnique({
       where: {
-        email: createUserDto.email,
+        email: input.email,
       },
     });
 
-    if (isUserExists) throw new ConflictException('User already exists'); // returns 409 Conflict
+    if (isUserExists) throw new ConflictException('User already exists');
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltOrRounds);
-    
-    const {email, full_name, role, tenant_id} = createUserDto;
-    const dbUser: Prisma.UserCreateInput = {
-      email: email,
-      password_hash: hashedPassword,
-    };
+    // Hash password
+    const hashedPassword = await this.hashPassword(input.password);
 
-    // Include only if they exist, handling typescript's strict null checks
-    if (full_name) dbUser.full_name = full_name;
-    if (role) dbUser.role = role;
-    if (tenant_id) {
-      dbUser.tenant = {
-        connect: { id: tenant_id },
-      };
-    }
-  
+    const { email, full_name, role, tenant_id } = input;
 
-    return this.prisma.user.create({
-      data: dbUser,
+    // Create new user and return a safe response
+    return await this.prisma.user.create({
+      data: {
+        email,
+        full_name,
+        role,
+        tenant_id,
+        password_hash: hashedPassword,
+      },
       select: {
         id: true,
         email: true,
         full_name: true,
         role: true,
-        tenant_id: true, // Optional, if user is created within a tenant context
+        tenant_id: true,
       },
     });
   }
-  
+
   findAll() {
-    // Returns array of User objects --> User[]
     return this.prisma.user.findMany({
       select: {
         id: true,
-        email: true, 
+        email: true,
         full_name: true,
         role: true,
-      }
-    });   
+      },
+    });
   }
-  
+
   async findOne(id: string) {
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
@@ -83,7 +72,7 @@ export class UserService {
         email: true,
         full_name: true,
         role: true,
-        tenant_id: true, 
+        tenant_id: true,
       },
     });
 
@@ -101,31 +90,30 @@ export class UserService {
         full_name: true,
         role: true,
         tenant_id: true, // Optional, if user is created within a tenant context
-        password_hash: true, 
+        password_hash: true,
       },
     });
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
     return foundUser;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-
+  async update(id: string, input: UpdateUserDto) {
     // Check if at least one field is provided for update
-    if (!updateUserDto.email && !updateUserDto.full_name && !updateUserDto.role && !updateUserDto.tenant_id) {
+    if (!input.email && !input.full_name && !input.role && !input.tenant_id) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
     }
 
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
-      });
-    
+    });
+
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
     // Update user with provided fields
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: input,
       select: {
         id: true,
         email: true,
@@ -139,8 +127,8 @@ export class UserService {
     return {
       code: 200,
       message: 'User updated successfully',
-      data: updatedUser
-    }
+      data: updatedUser,
+    };
   }
 
   async remove(id: string) {
@@ -167,12 +155,21 @@ export class UserService {
       code: 200,
       message: 'User deleted successfully',
       data: deletedUser,
+    };
+  }
+
+  async hashPassword(password: string) {
+    const saltOrRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
+    if (isNaN(saltOrRounds) || saltOrRounds < 4 || saltOrRounds > 15) {
+      throw new Error(
+        `Invalid BCRYPT_SALT_ROUNDS value: ${saltOrRounds}. It must be a positive integer between 4 and 15.`,
+      );
     }
+    // bcrypt lib has any types inside.
+    return await bcrypt.hash(password, saltOrRounds);
   }
 
-  async comparePassword(plainTextPassword: string, hashedPassword: string) {
-  // Compare plain text password with hashed password
-  return bcrypt.compare(plainTextPassword, hashedPassword);
+  async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+    return await bcrypt.compare(plainTextPassword, hashedPassword);
   }
-
 }

@@ -9,14 +9,14 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       envFilePath: ['.env'],
-      isGlobal: true, // Makes the configuration available globally
-    }), 
+      isGlobal: true,
+    }),
     PrismaModule,
     UserModule,
     TenantModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

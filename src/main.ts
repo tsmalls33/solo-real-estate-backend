@@ -22,14 +22,16 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false,       // strips properties not defined in the DTO
+      whitelist: false, // strips properties not defined in the DTO
       forbidNonWhitelisted: true, // throws error if extra fields exist
-      transform: true,       // transforms payloads into class instances
+      transform: true, // transforms payloads into class instances
     }),
   );
+
   console.log(`Application is running on PORT ${process.env.PORT}`);
 
   await app.listen(process.env.PORT ?? 3000);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
