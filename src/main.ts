@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -27,6 +29,8 @@ async function bootstrap() {
       transform: true, // transforms payloads into class instances
     }),
   );
+
+  app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
 
   console.log(`Application is running on PORT ${process.env.PORT}`);
 
