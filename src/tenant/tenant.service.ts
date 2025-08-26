@@ -72,14 +72,22 @@ export class TenantService {
     return foundTenant;
   }
 
-  async update(id: string, updateTenantDto: UpdateTenantDto) {
+  async update(id: string, input: UpdateTenantDto) {
     // check if at least one field is provided for update
     if (
-      !updateTenantDto.name &&
-      !updateTenantDto.custom_domain &&
-      !updateTenantDto.plan_id
+      !input.name &&
+      !input.custom_domain &&
+      !input.plan_id
     ) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
+    } else if (input.name) {
+      const isTenantExists = await this.prisma.tenant.findUnique({
+        where: {
+          name: input.name,
+        },
+      });
+
+      if (isTenantExists) throw new ConflictException(`Tenant name '${input.name}' already exists`);
     }
 
     // check if tenant exists

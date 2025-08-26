@@ -99,8 +99,21 @@ export class UserService {
 
   async update(id: string, input: UpdateUserDto) {
     // Check if at least one field is provided for update
-    if (!input.email && !input.full_name && !input.role && !input.tenant_id) {
+    if (
+      !input.email &&
+      !input.full_name &&
+      !input.role &&
+      !input.tenant_id
+    ) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
+    } else if (input.email) {
+      const isUserExists = await this.prisma.user.findUnique({
+        where: {
+          email: input.email,
+        },
+      });
+
+      if (isUserExists) throw new ConflictException(`User email '${input.email}' already exists`);
     }
 
     // Check if user exists
