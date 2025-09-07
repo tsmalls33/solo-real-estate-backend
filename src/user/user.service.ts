@@ -12,7 +12,7 @@ import { Prisma, $Enums } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(input: CreateUserDto) {
      /**
@@ -87,6 +87,19 @@ export class UserService {
       input.tenant_id === undefined
     ) {
       throw new ConflictException('No fields to update');
+    }
+
+    // If email is being updated, check if it already exists
+    if (input.email) {
+      const isUserExists = await this.prisma.user.findUnique({
+        where: {
+          email: input.email,
+        },
+      });
+
+      if (isUserExists) {
+        throw new ConflictException(`User email '${input.email}' already exists`);
+      }
     }
 
     // Check if user exists
