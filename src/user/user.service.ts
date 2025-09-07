@@ -36,7 +36,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltOrRounds);
 
-    const {email, full_name, role, tenant_id} = createUserDto;
+    const { email, full_name, role, tenant_id } = createUserDto;
     const dbUser: Prisma.UserCreateInput = {
       email: email,
       password_hash: hashedPassword,
@@ -111,21 +111,26 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
 
-    // Check if updated email already exists and if at least one field is provided for update
+    // Check if at least one field is provided for update
     if (!updateUserDto.email && !updateUserDto.full_name && !updateUserDto.role && !updateUserDto.tenant_id) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
-    } else if (updateUserDto.email) {
+    }
+
+    // If email is being updated, check it doesn't already exist
+    if (updateUserDto.email) {
       const existingUserEmail = await this.prisma.user.findUnique({
         where: { email: updateUserDto.email },
       })
 
-      if (existingUserEmail) throw new ConflictException(`User email '${updateUserDto.email}' already exists`);
+      if (existingUserEmail) {
+        throw new ConflictException(`User email '${updateUserDto.email}' already exists`);
+      }
     }
 
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
-      });
+    });
 
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
@@ -178,8 +183,8 @@ export class UserService {
   }
 
   async comparePassword(plainTextPassword: string, hashedPassword: string) {
-  // Compare plain text password with hashed password
-  return bcrypt.compare(plainTextPassword, hashedPassword);
+    // Compare plain text password with hashed password
+    return bcrypt.compare(plainTextPassword, hashedPassword);
   }
 
 }

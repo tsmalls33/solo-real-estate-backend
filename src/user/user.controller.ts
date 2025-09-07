@@ -16,7 +16,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
   private readonly uuidPipe = new ParseUUIDPipe();
 
   @Post()
@@ -27,13 +27,8 @@ export class UserController {
 
   @Get()
   @ApiOkResponse({ description: 'List of users retrieved successfully' })
-  async findAll() {
-    const data = await this.userService.findAll();
-    return {
-      code: 200,
-      message: 'Users retrieved successfully',
-      data,
-    } 
+  findAll() {
+    return this.userService.findAll();
   }
 
   @Get(':id')

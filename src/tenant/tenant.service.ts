@@ -7,10 +7,10 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TenantService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createTenantDto: CreateTenantDto) {
-   const isTenantExists = await this.prisma.tenant.findUnique({
+    const isTenantExists = await this.prisma.tenant.findUnique({
       where: {
         name: createTenantDto.name,
       },
@@ -18,11 +18,11 @@ export class TenantService {
 
     if (isTenantExists) throw new ConflictException('Tenant already exists'); // returns 409 Conflict
 
-  const dbTenant = {
+    const dbTenant = {
       name: createTenantDto.name,
       custom_domain: createTenantDto.custom_domain,
       plan_id: createTenantDto.plan_id,
-  };
+    };
 
     return this.prisma.tenant.create({
       data: dbTenant,
@@ -33,7 +33,7 @@ export class TenantService {
       },
     });
   }
-  
+
 
   findAll() {
     return this.prisma.tenant.findMany({
@@ -42,11 +42,11 @@ export class TenantService {
         name: true,
         custom_domain: true,
       },
-     });
+    });
   }
 
 
-   async findOne(id: string) {
+  async findOne(id: string) {
     const foundTenant = await this.prisma.tenant.findUnique({
       where: { id },
       select: {
@@ -61,25 +61,30 @@ export class TenantService {
             role: true,
           },
         },
-     },
+      },
     });
 
     if (!foundTenant) throw new NotFoundException(`Tenant with ID ${id} not found`); // returns 404 Not Found
 
-     return foundTenant;
-   }
-  
+    return foundTenant;
+  }
+
   async update(id: string, updateTenantDto: UpdateTenantDto) {
-    // check if updated name already exists and if at least one field is provided for update
-    
+
+    // Ensure at least one field is being updated
     if (!updateTenantDto.name && !updateTenantDto.custom_domain && !updateTenantDto.plan_id) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
-    } else if (updateTenantDto.name) {
+    }
+
+    // If name is being updated, check it doesn't already exist
+    if (updateTenantDto.name) {
       const existingTenantName = await this.prisma.tenant.findUnique({
-      where: { name: updateTenantDto.name },
+        where: { name: updateTenantDto.name },
       })
 
-      if (existingTenantName) throw new ConflictException(`Name of tenant '${updateTenantDto.name}' already exists`);
+      if (existingTenantName) {
+        throw new ConflictException(`Name of tenant '${updateTenantDto.name}' already exists`);
+      }
     }
 
     // check if tenant exists
@@ -130,6 +135,6 @@ export class TenantService {
       code: 200,
       message: 'Tenant deleted successfully',
       data: deletedTenant,
-    } 
+    }
   }
 }
