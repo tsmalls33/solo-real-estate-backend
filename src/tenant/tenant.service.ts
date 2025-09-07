@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TenantService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createTenantDto: CreateTenantDto) {
     const isTenantExists = await this.prisma.tenant.findUnique({
@@ -80,14 +80,19 @@ export class TenantService {
       !input.plan_id
     ) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
-    } else if (input.name) {
+    }
+
+    // check if tenant name is being updated and if it already exists
+    if (input.name) {
       const isTenantExists = await this.prisma.tenant.findUnique({
         where: {
           name: input.name,
         },
       });
 
-      if (isTenantExists) throw new ConflictException(`Tenant name '${input.name}' already exists`);
+      if (isTenantExists) {
+        throw new ConflictException(`Tenant name '${input.name}' already exists`);
+      }
     }
 
     // check if tenant exists
@@ -101,7 +106,7 @@ export class TenantService {
     // update tenant with provided fields
     const updatedTenant = await this.prisma.tenant.update({
       where: { id },
-      data: updateTenantDto,
+      data: input,
       select: {
         id: true,
         name: true,
