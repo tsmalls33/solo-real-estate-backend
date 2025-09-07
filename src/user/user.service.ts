@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
 import { ConfigService } from '@nestjs/config'; // Import ConfigService to access environment variables
 
+
 @Injectable()
 export class UserService {
   private readonly saltOrRounds: number; // Number of salt rounds for bcrypt
@@ -22,7 +23,7 @@ export class UserService {
     this.saltOrRounds = rounds; // Set the salt rounds for bcrypt
     console.log(`BCRYPT_SALT_ROUNDS set to: ${this.saltOrRounds}`); // Log the salt rounds for debugging
   }
-  
+
 
   async create(createUserDto: CreateUserDto) {
     const isUserExists = await this.prisma.user.findUnique({
@@ -34,8 +35,8 @@ export class UserService {
     if (isUserExists) throw new ConflictException('User already exists'); // returns 409 Conflict
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltOrRounds);
-    
-    const {email, full_name, role, tenant_id} = createUserDto;
+
+    const { email, full_name, role, tenant_id } = createUserDto;
     const dbUser: Prisma.UserCreateInput = {
       email: email,
       password_hash: hashedPassword,
@@ -49,7 +50,7 @@ export class UserService {
         connect: { id: tenant_id },
       };
     }
-  
+
 
     return this.prisma.user.create({
       data: dbUser,
@@ -62,19 +63,19 @@ export class UserService {
       },
     });
   }
-  
+
   findAll() {
     // Returns array of User objects --> User[]
     return this.prisma.user.findMany({
       select: {
         id: true,
-        email: true, 
+        email: true,
         full_name: true,
         role: true,
       }
-    });   
+    });
   }
-  
+
   async findOne(id: string) {
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
@@ -83,7 +84,7 @@ export class UserService {
         email: true,
         full_name: true,
         role: true,
-        tenant_id: true, 
+        tenant_id: true,
       },
     });
 
@@ -101,7 +102,7 @@ export class UserService {
         full_name: true,
         role: true,
         tenant_id: true, // Optional, if user is created within a tenant context
-        password_hash: true, 
+        password_hash: true,
       },
     });
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
@@ -115,11 +116,22 @@ export class UserService {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
     }
 
+    // If email is being updated, check it doesn't already exist
+    if (updateUserDto.email) {
+      const existingUserEmail = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      })
+
+      if (existingUserEmail) {
+        throw new ConflictException(`User email '${updateUserDto.email}' already exists`);
+      }
+    }
+
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
-      });
-    
+    });
+
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
     // Update user with provided fields
@@ -171,8 +183,8 @@ export class UserService {
   }
 
   async comparePassword(plainTextPassword: string, hashedPassword: string) {
-  // Compare plain text password with hashed password
-  return bcrypt.compare(plainTextPassword, hashedPassword);
+    // Compare plain text password with hashed password
+    return bcrypt.compare(plainTextPassword, hashedPassword);
   }
 
 }
