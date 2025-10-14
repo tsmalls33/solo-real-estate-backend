@@ -20,18 +20,22 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   // Type this return
   async signIn(input: SignInDto) {
-    const user = await this.userService.findByEmail(input.email);
+    // Deconstruct the DTO
+    const { email, password } = input;
+
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Deconstruct the DTO
-    const { email, password } = SignInDto;
-
+    const isPasswordValid = await this.userService.verifyPassword(
+      password,
+      user.password_hash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }

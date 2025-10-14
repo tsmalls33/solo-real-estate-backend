@@ -16,15 +16,14 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../user/user-roles';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.SUPERADMIN)
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-
 @ApiTags('Tenant')
 @Controller('tenant')
 export class TenantController {
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly tenantService: TenantService) { }
 
   @Post()
   @ResponseMessage('Tenant created successfully')

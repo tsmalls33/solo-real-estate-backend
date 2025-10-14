@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
 import { Prisma, $Enums } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
@@ -30,12 +31,12 @@ export class UserService {
 
 
   async create(input: CreateUserDto) {
-     /**
-     * - Validate user input (handled by class-validator)
-     * - Check if user already exists
-     * - Hash password
-     * - Create user
-     */
+    /**
+    * - Validate user input (handled by class-validator)
+    * - Check if user already exists
+    * - Hash password
+    * - Create user
+    */
 
     // Check if user already exists
     const isUserExists = await this.prisma.user.findUnique({
@@ -118,13 +119,13 @@ export class UserService {
     }
 
     // If email is being updated, check it doesn't already exist
-    if (updateUserDto.email) {
+    if (input.email) {
       const existingUserEmail = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
+        where: { email: input.email },
       })
 
       if (existingUserEmail) {
-        throw new ConflictException(`User email '${updateUserDto.email}' already exists`);
+        throw new ConflictException(`User email '${input.email}' already exists`);
       }
     }
 
