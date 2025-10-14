@@ -48,7 +48,7 @@ export class AuthService {
       throw new Error('JWT secrets are not configured');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     const accessToken = await this.generateToken(
       this.jwtSecret,
@@ -117,7 +117,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const payload = { sub: verifiedToken.sub, email: verifiedToken.email };
+    // Ensure we include the latest user role in the token payload
+    const currentUser = await this.userService.findOne(verifiedToken.sub);
+    const payload = { sub: currentUser.id, email: currentUser.email, role: currentUser.role };
 
     // Generate both new access token and new refresh token (token rotation)
     const newAccessToken = await this.generateToken(

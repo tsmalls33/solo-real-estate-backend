@@ -144,6 +144,7 @@ export class UserService {
   }
 
   async hashPassword(password: string) {
+
     const saltOrRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
     if (isNaN(saltOrRounds) || saltOrRounds < 4 || saltOrRounds > 15) {
       throw new Error(
