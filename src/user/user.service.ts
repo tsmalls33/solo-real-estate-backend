@@ -7,13 +7,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
+import { Prisma, $Enums } from '@prisma/client';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(input: CreateUserDto) {
-    /**
+     /**
      * - Validate user input (handled by class-validator)
      * - Check if user already exists
      * - Hash password
@@ -22,9 +24,7 @@ export class UserService {
 
     // Check if user already exists
     const isUserExists = await this.prisma.user.findUnique({
-      where: {
-        email: input.email,
-      },
+      where: { email: input.email },
     });
 
     if (isUserExists) throw new ConflictException('User already exists');
@@ -34,7 +34,6 @@ export class UserService {
 
     const { email, full_name, role, tenant_id } = input;
 
-    // Create new user and return a safe response
     return await this.prisma.user.create({
       data: {
         email,
@@ -53,30 +52,19 @@ export class UserService {
     });
   }
 
-  findAll() {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        full_name: true,
-        role: true,
-      },
+  async findAll() {
+    return await this.prisma.user.findMany({
+      select: USER_PUBLIC_SELECT,
     });
   }
 
   async findOne(id: string) {
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        full_name: true,
-        role: true,
-        tenant_id: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
 
-    if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
+    if (!foundUser) throw new NotFoundException('User not found');
 
     return foundUser;
   }
@@ -84,28 +72,21 @@ export class UserService {
   async findByEmail(email: string) {
     const foundUser = await this.prisma.user.findUnique({
       where: { email },
-      select: {
-        id: true,
-        email: true,
-        full_name: true,
-        role: true,
-        tenant_id: true, // Optional, if user is created within a tenant context
-        password_hash: true,
-      },
+      select: USER_AUTH_SELECT,
     });
-    if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
+    if (!foundUser) throw new NotFoundException('User not found');
     return foundUser;
   }
 
   async update(id: string, input: UpdateUserDto) {
     // Check if at least one field is provided for update
     if (
-      !input.email &&
-      !input.full_name &&
-      !input.role &&
-      !input.tenant_id
+      input.email === undefined &&
+      input.full_name === undefined &&
+      input.role === undefined &&
+      input.tenant_id === undefined
     ) {
-      throw new ConflictException('No fields to update'); // returns 409 Conflict
+      throw new ConflictException('No fields to update');
     }
 
     // If email is being updated, check if it already exists
@@ -141,39 +122,25 @@ export class UserService {
       },
     });
 
-    // TODO: Use response interceptors wrapping the responses with codes and messages for all successful reaponses
-    return {
-      code: 200,
-      message: 'User updated successfully',
-      data: updatedUser,
-    };
+    return updatedUser;
   }
 
   async remove(id: string) {
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
       where: { id },
+      select: { id: true },
     });
 
-    if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
+    if (!foundUser) throw new NotFoundException('User not found');
 
     // Delete user
     const deletedUser = await this.prisma.user.delete({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        full_name: true,
-        role: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
 
-    // TODO: Use response interceptors for this
-    return {
-      code: 200,
-      message: 'User deleted successfully',
-      data: deletedUser,
-    };
+    return deletedUser;
   }
 
   async hashPassword(password: string) {
@@ -184,7 +151,6 @@ export class UserService {
         `Invalid BCRYPT_SALT_ROUNDS value: ${saltOrRounds}. It must be a positive integer between 4 and 15.`,
       );
     }
-    // bcrypt lib has any types inside.
     return await bcrypt.hash(password, saltOrRounds);
   }
 

@@ -6,6 +6,7 @@ import {
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { TENANT_PUBLIC_SELECT, TENANT_WITH_USERS_SELECT } from './projections/tenant.projection';
 
 // TODO: Add password hashing and validation logic
 
@@ -30,40 +31,20 @@ export class TenantService {
 
     return this.prisma.tenant.create({
       data: dbTenant,
-      select: {
-        id: true,
-        name: true,
-        custom_domain: true,
-      },
+      select: TENANT_PUBLIC_SELECT,
     });
   }
 
   findAll() {
     return this.prisma.tenant.findMany({
-      select: {
-        id: true,
-        name: true,
-        custom_domain: true,
-      },
+      select: TENANT_PUBLIC_SELECT,
     });
   }
 
   async findOne(id: string) {
     const foundTenant = await this.prisma.tenant.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        custom_domain: true,
-        users: {
-          select: {
-            id: true,
-            email: true,
-            full_name: true,
-            role: true,
-          },
-        },
-      },
+      select: TENANT_WITH_USERS_SELECT,
     });
 
     if (!foundTenant)
@@ -107,18 +88,10 @@ export class TenantService {
     const updatedTenant = await this.prisma.tenant.update({
       where: { id },
       data: input,
-      select: {
-        id: true,
-        name: true,
-        custom_domain: true,
-      },
+      select: TENANT_PUBLIC_SELECT,
     });
 
-    return {
-      code: 200,
-      message: 'Tenant updated successfully',
-      data: updatedTenant,
-    };
+    return updatedTenant;
   }
 
   async remove(id: string) {
@@ -133,18 +106,9 @@ export class TenantService {
     // delete tenant
     const deletedTenant = await this.prisma.tenant.delete({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        custom_domain: true,
-      },
+      select: TENANT_PUBLIC_SELECT,
     });
 
-    // TODO: Use response interceptors for this
-    return {
-      code: 200,
-      message: 'Tenant deleted successfully',
-      data: deletedTenant,
-    };
+    return deletedTenant;
   }
 }
