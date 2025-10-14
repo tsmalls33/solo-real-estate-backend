@@ -29,10 +29,8 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const isPasswordValid = await this.userService.verifyPassword(
-      input.password,
-      user.password_hash,
-    );
+    // Deconstruct the DTO
+    const { email, password } = SignInDto;
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');

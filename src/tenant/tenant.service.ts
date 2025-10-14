@@ -8,7 +8,6 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { TENANT_PUBLIC_SELECT, TENANT_WITH_USERS_SELECT } from './projections/tenant.projection';
 
-// TODO: Add password hashing and validation logic
 
 @Injectable()
 export class TenantService {

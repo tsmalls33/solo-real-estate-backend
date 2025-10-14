@@ -19,6 +19,9 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(Role.SUPERADMIN)
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Tenant')
 @Controller('tenant')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}

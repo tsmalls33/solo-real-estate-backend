@@ -10,9 +10,24 @@ import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
 import { Prisma, $Enums } from '@prisma/client';
 
+
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) { }
+  private readonly saltOrRounds: number; // Number of salt rounds for bcrypt
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService, // Inject ConfigService for environment variables
+  ) {
+    const raw = this.configService.get<string>('BCRYPT_SALT_ROUNDS') || 10; // Default to 10 if not set
+    const rounds = Number(raw);
+    if (isNaN(rounds) || rounds < 4 || rounds > 15) {
+      throw new Error(`Invalid BCRYPT_SALT_ROUNDS value: ${raw}. It must be a positive integer between 4 and 15.`);
+    }
+    this.saltOrRounds = rounds; // Set the salt rounds for bcrypt
+    console.log(`BCRYPT_SALT_ROUNDS set to: ${this.saltOrRounds}`); // Log the salt rounds for debugging
+  }
+
 
   async create(input: CreateUserDto) {
      /**
@@ -99,6 +114,17 @@ export class UserService {
 
       if (isUserExists) {
         throw new ConflictException(`User email '${input.email}' already exists`);
+      }
+    }
+
+    // If email is being updated, check it doesn't already exist
+    if (updateUserDto.email) {
+      const existingUserEmail = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      })
+
+      if (existingUserEmail) {
+        throw new ConflictException(`User email '${updateUserDto.email}' already exists`);
       }
     }
 
