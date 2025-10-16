@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../../src/user/user.service';
-import { PrismaService } from '../../src/prisma/prisma.service';
-import { Role } from '../../src/user/user-roles';
+import { UserService } from './user.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { Role } from './user-roles';
 import { ConfigService } from '@nestjs/config';
 
 describe('UserService', () => {
@@ -100,7 +100,6 @@ describe('UserService', () => {
           tenant_id: true, // Optional, if user is created within a tenant context
         },
       });
-
     });
 
     it('should throw an error if user already exists', async () => {
@@ -116,9 +115,9 @@ describe('UserService', () => {
   // TODO: existingUser cannot be createUserDto
   describe('update', () => {
     it('should update a user', async () => {
-      // Make an existing user that has an id 
+      // Make an existing user that has an id
       const existingUser: any = { ...createUserDto, id: 'user123' };
-      // First two calls for email checks return null, third call returns the existing user by id
+      // First two calls for email uniqueness checks return null, third call returns existing user by id
       mockPrisma.user.findUnique
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(null)
