@@ -68,7 +68,7 @@ $ pnpm prisma generate
 
 ## Documentation
 
-https://localhost:3000/api
+http://localhost:3000/api
 
 ## Deployment
 
