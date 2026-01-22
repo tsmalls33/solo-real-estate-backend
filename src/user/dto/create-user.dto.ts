@@ -1,4 +1,4 @@
-import { Role } from '../user-roles';
+import { UserRoles } from "@RealEstate/types";
 import {
   IsString,
   IsEmail,
@@ -30,14 +30,14 @@ export class CreateUserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @Matches(FULL_NAME_PATTERN, { message: VALIDATION_MESSAGES.FULL_NAME })
-  full_name: string;
+  fullName: string;
 
   @IsOptional()
-  @IsEnum(Role)
-  role: Role;
+  @IsEnum(UserRoles)
+  role: UserRoles;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsUUID()
-  tenant_id: string; // Optional, if user is created within a tenant context
+  id_tenant: string; // Optional, if user is created within a tenant context
 }

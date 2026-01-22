@@ -13,7 +13,7 @@ import { TENANT_PUBLIC_SELECT, TENANT_WITH_USERS_SELECT } from './projections/te
 export class TenantService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(createTenantDto: CreateTenantDto) {
+  async createTenant(createTenantDto: CreateTenantDto) {
     const isTenantExists = await this.prisma.tenant.findUnique({
       where: {
         name: createTenantDto.name,
@@ -24,8 +24,8 @@ export class TenantService {
 
     const dbTenant = {
       name: createTenantDto.name,
-      custom_domain: createTenantDto.custom_domain,
-      plan_id: createTenantDto.plan_id,
+      customDomain: createTenantDto.customDomain,
+      id_plan: createTenantDto.id_plan,
     };
 
     return this.prisma.tenant.create({
@@ -40,24 +40,24 @@ export class TenantService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id_tenant: string) {
     const foundTenant = await this.prisma.tenant.findUnique({
-      where: { id },
+      where: { id_tenant },
       select: TENANT_WITH_USERS_SELECT,
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant with ID ${id} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
 
     return foundTenant;
   }
 
-  async update(id: string, input: UpdateTenantDto) {
+  async update(id_tenant: string, input: UpdateTenantDto) {
     // check if at least one field is provided for update
     if (
       !input.name &&
-      !input.custom_domain &&
-      !input.plan_id
+      !input.customDomain &&
+      !input.id_plan
     ) {
       throw new ConflictException('No fields to update'); // returns 409 Conflict
     }
@@ -77,15 +77,15 @@ export class TenantService {
 
     // check if tenant exists
     const foundTenant = await this.prisma.tenant.findUnique({
-      where: { id },
+      where: { id_tenant },
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant with ID ${id} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant with id ${id_tenant} not found`); // returns 404 Not Found
 
     // update tenant with provided fields
     const updatedTenant = await this.prisma.tenant.update({
-      where: { id },
+      where: { id_tenant },
       data: input,
       select: TENANT_PUBLIC_SELECT,
     });
@@ -93,18 +93,18 @@ export class TenantService {
     return updatedTenant;
   }
 
-  async remove(id: string) {
+  async remove(id_tenant: string) {
     // check if tenant exists
     const foundTenant = await this.prisma.tenant.findUnique({
-      where: { id },
+      where: { id_tenant },
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant with ID ${id} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
 
     // delete tenant
     const deletedTenant = await this.prisma.tenant.delete({
-      where: { id },
+      where: { id_tenant },
       select: TENANT_PUBLIC_SELECT,
     });
 

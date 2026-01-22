@@ -13,13 +13,13 @@ import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../user/user-roles';
+import { UserRoles } from "@RealEstate/types";
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Roles(Role.SUPERADMIN)
+@Roles(UserRoles.SUPERADMIN)
 @ApiTags('Tenant')
 @Controller('tenant')
 export class TenantController {
@@ -28,7 +28,7 @@ export class TenantController {
   @Post()
   @ResponseMessage('Tenant created successfully')
   create(@Body() createTenantDto: CreateTenantDto) {
-    return this.tenantService.create(createTenantDto);
+    return this.tenantService.createTenant(createTenantDto);
   }
 
   @Get()

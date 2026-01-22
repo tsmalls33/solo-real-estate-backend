@@ -8,31 +8,25 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id_user            String   @id @default(uuid())
   email         String   @unique
-  password_hash String
-  full_name     String?
-  role          Role     @default(CLIENT)
-  tenant_id     String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now()) @updatedAt
+  passwordHash String
+  fullName      String?
+  role          String     @default("client")
+  id_tenant     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
   
-  tenant        Tenant?  @relation("TenantUsers", fields: [tenant_id], references: [id])
+  tenant        Tenant?  @relation("TenantUsers", fields: [id_tenant], references: [id_tenant])
 }
 
 model Tenant {
-  id            String   @id @default(uuid())
+  id_tenant            String   @id @default(uuid())
   name          String   @unique
-  custom_domain String?
+  customDomain String?
   users         User[]   @relation("TenantUsers")
-  plan_id       String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now()) @updatedAt
+  id_plan       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 }
 
-enum Role {
-  CLIENT
-  EMPLOYEE
-  ADMIN
-  SUPERADMIN
-}

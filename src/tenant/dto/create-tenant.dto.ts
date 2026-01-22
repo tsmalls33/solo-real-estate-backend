@@ -2,17 +2,17 @@ import { IsOptional, IsUrl, IsUUID, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTenantDto {
-  @ApiProperty({required: true, example: 'Acme Corp'})
+  @ApiProperty({ required: true, example: 'Acme Corp' })
   @IsString()
   name: string;
 
-  @ApiProperty({required: true, example: 'https://acme.example.com'})
+  @ApiProperty({ required: true, example: 'https://acme.example.com' })
   @IsOptional()
   @IsUrl()
-  custom_domain: string;
+  customDomain: string;
 
-  @ApiProperty({required: true, example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'})
+  @ApiProperty({ required: true, example: '3fa85f64-5717-4562-b3fc-2c963f66afa6' })
   @IsOptional()
   @IsUUID()
-  plan_id: string;
+  id_plan: string;
 }

@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
-import { Prisma, $Enums } from '@prisma/client';
+import { User } from '@RealEstate/types'
 import { ConfigService } from '@nestjs/config';
 
 
@@ -30,7 +30,7 @@ export class UserService {
   }
 
 
-  async create(input: CreateUserDto) {
+  async createUser(input: CreateUserDto): Promise<Partial<User>> {
     /**
     * - Validate user input (handled by class-validator)
     * - Check if user already exists
@@ -48,22 +48,22 @@ export class UserService {
     // Hash password
     const hashedPassword = await this.hashPassword(input.password);
 
-    const { email, full_name, role, tenant_id } = input;
+    const { email, fullName, role, id_tenant } = input;
 
     return await this.prisma.user.create({
       data: {
         email,
-        full_name,
+        fullName,
         role,
-        tenant_id,
-        password_hash: hashedPassword,
+        id_tenant,
+        passwordHash: hashedPassword,
       },
       select: {
-        id: true,
+        id_user: true,
         email: true,
-        full_name: true,
+        fullName: true,
         role: true,
-        tenant_id: true,
+        id_tenant: true,
       },
     });
   }
@@ -74,9 +74,9 @@ export class UserService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id_user: string): Promise<Partial<User>> {
     const foundUser = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id_user },
       select: USER_PUBLIC_SELECT,
     });
 
@@ -94,13 +94,13 @@ export class UserService {
     return foundUser;
   }
 
-  async update(id: string, input: UpdateUserDto) {
+  async update(id_user: string, input: UpdateUserDto) {
     // Check if at least one field is provided for update
     if (
       input.email === undefined &&
-      input.full_name === undefined &&
+      input.fullName === undefined &&
       input.role === undefined &&
-      input.tenant_id === undefined
+      input.id_tenant === undefined
     ) {
       throw new ConflictException('No fields to update');
     }
@@ -131,39 +131,39 @@ export class UserService {
 
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id_user },
     });
 
     if (!foundUser) throw new NotFoundException('User not found'); // returns 404 Not Found
 
     // Update user with provided fields
     const updatedUser = await this.prisma.user.update({
-      where: { id },
+      where: { id_user },
       data: input,
       select: {
-        id: true,
+        id_user: true,
         email: true,
-        full_name: true,
+        fullName: true,
         role: true,
-        tenant_id: true,
+        id_tenant: true,
       },
     });
 
     return updatedUser;
   }
 
-  async remove(id: string) {
+  async remove(id_user: string) {
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
-      where: { id },
-      select: { id: true },
+      where: { id_user },
+      select: { id_user: true },
     });
 
     if (!foundUser) throw new NotFoundException('User not found');
 
     // Delete user
     const deletedUser = await this.prisma.user.delete({
-      where: { id },
+      where: { id_user },
       select: USER_PUBLIC_SELECT,
     });
 

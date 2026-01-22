@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from './user-roles';
+import { UserRoles } from '@RealEstate/types';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ParseUUIDPipe } from '@nestjs/common';
@@ -27,15 +27,15 @@ export class UserController {
   @Post()
   @ResponseMessage('User created successfully')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(UserRoles.ADMIN, UserRoles.SUPERADMIN)
   create(@Body() input: CreateUserDto) {
-    return this.userService.create(input);
+    return this.userService.createUser(input);
   }
 
   @Get()
   @ResponseMessage('Users fetched successfully')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(UserRoles.ADMIN, UserRoles.SUPERADMIN)
   findAll() {
     return this.userService.findAll();
   }
@@ -55,7 +55,7 @@ export class UserController {
   @Delete(':id')
   @ResponseMessage('User deleted successfully')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(UserRoles.ADMIN, UserRoles.SUPERADMIN)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }

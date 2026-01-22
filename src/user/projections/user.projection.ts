@@ -1,12 +1,12 @@
 export const USER_PUBLIC_SELECT = {
-  id: true,
+  id_user: true,
   email: true,
-  full_name: true,
+  fullName: true,
   role: true,
-  tenant_id: true,
+  id_tenant: true,
 } as const;
 
 export const USER_AUTH_SELECT = {
   ...USER_PUBLIC_SELECT,
-  password_hash: true,
+  passwordHash: true,
 } as const;
