@@ -32,6 +32,14 @@ $ pnpm install
 $ docker compose -f {docker-compose.yml file or similar} up -d 
 ```
 
+### Fresh set up
+Don't forget to set up DATABASE_URL, JWT_TOKENs, BCRYPT_SALT_ROUNDS, and SECRETS.
+
+```bash
+$ npx prisma generate
+$ npx prisma db push
+```
+
 ## Compile and run the project
 
 ```bash
