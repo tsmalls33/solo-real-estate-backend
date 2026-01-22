@@ -68,6 +68,13 @@ $ pnpm run test:cov
 
 ## Database actions 
 
+### Easy web DB interface
+
+```bash
+$ pnpm prisma studio
+```
+
+
 ```bash
 # migrate a database change 
 $ pnpm prisma migrate dev --name "migration name"

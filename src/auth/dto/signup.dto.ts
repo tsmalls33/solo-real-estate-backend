@@ -1,19 +1,19 @@
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { SignInDto } from './signin.dto';
-import { Role } from 'src/user/user-roles';
+import { UserRoles } from "@RealEstate/types";
 
 export class SignUpDto extends SignInDto {
   @IsString()
   @IsOptional()
-  full_name: string;
+  fullName: string;
 
   @IsString()
   @IsOptional()
-  @IsEnum(Role)
-  role: Role;
+  @IsEnum(UserRoles)
+  role: UserRoles;
 
   @IsString()
   @IsOptional()
   @IsUUID()
-  tenant_id: string;
+  id_tenant: string;
 }

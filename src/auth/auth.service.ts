@@ -34,7 +34,7 @@ export class AuthService {
 
     const isPasswordValid = await this.userService.verifyPassword(
       password,
-      user.password_hash,
+      user.passwordHash,
     );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
@@ -50,7 +50,7 @@ export class AuthService {
       throw new Error('JWT secrets are not configured');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { sub: user.id_user, email: user.email, role: user.role };
 
     const accessToken = await this.generateToken(
       this.jwtSecret,
@@ -66,11 +66,11 @@ export class AuthService {
     return {
       data: {
         user: {
-          id: user.id,
+          id: user.id_user,
           email: user.email,
-          full_name: user.full_name,
+          fullName: user.fullName,
           role: user.role,
-          tenant_id: user.tenant_id,
+          id_tenant: user.id_tenant,
         },
         accessToken,
         refreshToken,
@@ -80,17 +80,17 @@ export class AuthService {
 
   // Type this return
   async signUp(input: SignUpDto) {
-    const { email, password, full_name, role, tenant_id } = input;
+    const { email, password, fullName, role, id_tenant } = input;
 
     // Check if the user already exists --> This is handled by the UserService.create
     // Hash the password --> This is handled by the UserService.create
     // Create a new user --> This is handled by the UserService.create
-    const newUser = await this.userService.create({
+    const newUser = await this.userService.createUser({
       email,
       password,
-      full_name,
+      fullName,
       role,
-      tenant_id,
+      id_tenant,
     });
 
     return {
@@ -121,7 +121,7 @@ export class AuthService {
 
     // Ensure we include the latest user role in the token payload
     const currentUser = await this.userService.findOne(verifiedToken.sub);
-    const payload = { sub: currentUser.id, email: currentUser.email, role: currentUser.role };
+    const payload = { sub: currentUser.id_user, email: currentUser.email, role: currentUser.role };
 
     // Generate both new access token and new refresh token (token rotation)
     const newAccessToken = await this.generateToken(

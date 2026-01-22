@@ -1,9 +1,12 @@
 ## TODO
 
-- [ ] Authentication & Authorization with RBAC
+- [x] Authentication & Authorization with RBAC
 - [ ] Create guard
-- [ ] Tenant routes
-- [ ] Model responses. Normalize and type the responses throught entire app
+- [x] Tenant routes
+- [ ] Model responses. Normalize and type the responses throughout the entire app
+- [ ] Write spec tests
+- [ ] Add seed users and tenants
+- [ ] Add the repository layer?
 
 ## DB Models
 
