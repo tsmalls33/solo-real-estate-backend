@@ -1,1 +1,1 @@
-{"version":3,"file":"Tenant.d.ts","sourceRoot":"","sources":["../src/Tenant.ts"],"names":[],"mappings":""}
+{"version":3,"file":"Tenant.d.ts","sourceRoot":"","sources":["../src/Tenant.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,MAAM,EAAE,MAAM,gBAAgB,CAAA;AACvC,qBAAa,YAAa,YAAW,MAAM;IACzC,SAAS,EAAE,MAAM,CAAA;IACjB,IAAI,EAAE,MAAM,CAAA;IACZ,YAAY,EAAE,MAAM,GAAG,IAAI,CAAA;IAC3B,OAAO,EAAE,MAAM,GAAG,IAAI,CAAA;IACtB,SAAS,EAAE,IAAI,CAAA;IACf,SAAS,EAAE,IAAI,CAAA;CAChB"}

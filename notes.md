@@ -4,9 +4,10 @@
 - [ ] Create guard
 - [x] Tenant routes
 - [ ] Model responses. Normalize and type the responses throughout the entire app
-- [ ] Write spec tests
 - [ ] Add seed users and tenants
 - [ ] Add the repository layer?
+- [ ] Fix all the type errors from the renaming and types package
+- [ ] Write spec tests
 
 ## DB Models
 

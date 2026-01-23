@@ -1,4 +1,4 @@
-import { UserRoles } from "@RealEstate/types";
+import { UserRoles, CreateUserDto as SharedCreateUserDto } from "@RealEstate/types";
 import {
   IsString,
   IsEmail,
@@ -15,7 +15,7 @@ import {
 } from 'src/utils/validators/validation-patterns';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
+export class CreateUserDto implements SharedCreateUserDto {
   @ApiProperty({ required: true, example: 'john@gmail.com' })
   @IsEmail()
   @IsNotEmpty()
@@ -30,14 +30,14 @@ export class CreateUserDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @Matches(FULL_NAME_PATTERN, { message: VALIDATION_MESSAGES.FULL_NAME })
-  fullName: string;
+  fullName?: string;
 
   @IsOptional()
   @IsEnum(UserRoles)
-  role: UserRoles;
+  role?: UserRoles;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsUUID()
-  id_tenant: string; // Optional, if user is created within a tenant context
+  id_tenant?: string; // Optional, if user is created within a tenant context
 }

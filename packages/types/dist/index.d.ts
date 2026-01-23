@@ -1,2 +1,1 @@
-export * from './User';
-//# sourceMappingURL=index.d.ts.map
+export * from './User.types';

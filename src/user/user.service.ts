@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
-import { User } from '@RealEstate/types'
+import { User } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 
 
@@ -30,7 +30,7 @@ export class UserService {
   }
 
 
-  async createUser(input: CreateUserDto): Promise<Partial<User>> {
+  async createUser(input: CreateUserDto): Promise<Omit<User, 'passwordHash'>> {
     /**
     * - Validate user input (handled by class-validator)
     * - Check if user already exists
@@ -58,13 +58,7 @@ export class UserService {
         id_tenant,
         passwordHash: hashedPassword,
       },
-      select: {
-        id_user: true,
-        email: true,
-        fullName: true,
-        role: true,
-        id_tenant: true,
-      },
+      select: USER_PUBLIC_SELECT
     });
   }
 
@@ -74,7 +68,7 @@ export class UserService {
     });
   }
 
-  async findOne(id_user: string): Promise<Partial<User>> {
+  async findOne(id_user: string): Promise<Omit<User, 'passwordHash'>> {
     const foundUser = await this.prisma.user.findUnique({
       where: { id_user },
       select: USER_PUBLIC_SELECT,

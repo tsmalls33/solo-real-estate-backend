@@ -12,7 +12,7 @@ model User {
   email         String   @unique
   passwordHash String
   fullName      String?
-  role          String     @default("client")
+  role          UserRoles     @default(CLIENT)
   id_tenant     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
@@ -29,4 +29,11 @@ model Tenant {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
 }
+
+enum UserRoles {
+    ADMIN
+    SUPERADMIN
+    CLIENT
+    EMPLOYEE
+  }
 

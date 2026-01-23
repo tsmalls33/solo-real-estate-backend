@@ -4,6 +4,8 @@ export const USER_PUBLIC_SELECT = {
   fullName: true,
   role: true,
   id_tenant: true,
+  createdAt: true,
+  updatedAt: true
 } as const;
 
 export const USER_AUTH_SELECT = {

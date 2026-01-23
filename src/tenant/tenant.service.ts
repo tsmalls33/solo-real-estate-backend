@@ -7,13 +7,14 @@ import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { TENANT_PUBLIC_SELECT, TENANT_WITH_USERS_SELECT } from './projections/tenant.projection';
+import { TenantEntity } from '@RealEstate/types'
 
 
 @Injectable()
 export class TenantService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async createTenant(createTenantDto: CreateTenantDto) {
+  async createTenant(createTenantDto: CreateTenantDto): Promise<TenantEntity> {
     const isTenantExists = await this.prisma.tenant.findUnique({
       where: {
         name: createTenantDto.name,
@@ -29,15 +30,12 @@ export class TenantService {
     };
 
     return this.prisma.tenant.create({
-      data: dbTenant,
-      select: TENANT_PUBLIC_SELECT,
+      data: dbTenant
     });
   }
 
-  findAll() {
-    return this.prisma.tenant.findMany({
-      select: TENANT_PUBLIC_SELECT,
-    });
+  async findAll(): Promise<TenantEntity[]> {
+    return this.prisma.tenant.findMany();
   }
 
   async findOne(id_tenant: string) {

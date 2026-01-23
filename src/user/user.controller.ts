@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRoles } from '@RealEstate/types';
+import { UserRoles } from '@RealEstate/types'
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ParseUUIDPipe } from '@nestjs/common';
