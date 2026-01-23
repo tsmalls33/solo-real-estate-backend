@@ -8,14 +8,14 @@ export type UserRoles = (typeof UserRoles)[keyof typeof UserRoles];
 export declare class UserResponseDto {
     id_user: string;
     email: string;
-    fullName?: string;
+    fullName?: string | null;
     role: UserRoles;
-    id_tenant?: string;
+    id_tenant?: string | null;
 }
 export declare class CreateUserDto {
     email: string;
     password: string;
-    fullName?: string;
-    role?: UserRoles;
-    id_tenant?: string;
+    fullName?: string | null;
+    role?: UserRoles | null;
+    id_tenant?: string | null;
 }

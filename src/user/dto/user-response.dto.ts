@@ -3,9 +3,9 @@ import { UserResponseDto as SharedUserResponseDto } from "@RealEstate/types";
 export class UserResponseDto implements SharedUserResponseDto {
   id_user!: string;
   email!: string;
-  fullName?: string;
+  fullName?: string | null;
   role!: SharedUserResponseDto["role"];
-  id_tenant?: string;
+  id_tenant?: string | null;
 }
 
 
