@@ -1,1 +1,2 @@
-export * from './User.types';
+export * from './User.type';
+export * from './Tenant.type';

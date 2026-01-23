@@ -5,8 +5,10 @@ import {
   Body,
   Put,
   Param,
+  Query,
   Delete,
   UseGuards,
+  ValidationPipe
 } from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -14,9 +16,11 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRoles } from "@RealEstate/types";
+import { GetTenantQueryParams } from './dto/get-tenant-query-params';
+import { TenantResponseDto } from './dto/tenant-response.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(UserRoles.SUPERADMIN)
@@ -27,31 +31,35 @@ export class TenantController {
 
   @Post()
   @ResponseMessage('Tenant created successfully')
-  create(@Body() createTenantDto: CreateTenantDto) {
+  create(@Body() createTenantDto: CreateTenantDto): Promise<TenantResponseDto> {
     return this.tenantService.createTenant(createTenantDto);
   }
 
   @Get()
   @ResponseMessage('Tenants fetched successfully')
-  findAll() {
+  findAll(): Promise<TenantResponseDto[]> {
     return this.tenantService.findAll();
   }
 
-  @Get(':id')
+  @Get(':id_tenant')
   @ResponseMessage('Tenant fetched successfully')
-  findOne(@Param('id') id: string) {
-    return this.tenantService.findOne(id);
+  findOne(
+    @Param('id_tenant') id_tenant: string,
+    @Query(new ValidationPipe({ transform: true })) query: GetTenantQueryParams,
+  ): Promise<TenantResponseDto> {
+    const { includeUsers } = query
+    return this.tenantService.findOne(id_tenant, includeUsers);
   }
 
-  @Put(':id')
+  @Put(':id_tenant')
   @ResponseMessage('Tenant updated successfully')
-  update(@Param('id') id: string, @Body() updateTenantDto: UpdateTenantDto) {
-    return this.tenantService.update(id, updateTenantDto);
+  update(@Param('id_tenant') id_tenant: string, @Body() updateTenantDto: UpdateTenantDto): Promise<TenantResponseDto> {
+    return this.tenantService.update(id_tenant, updateTenantDto);
   }
 
-  @Delete(':id')
+  @Delete(':id_tenant')
   @ResponseMessage('Tenant deleted successfully')
-  remove(@Param('id') id: string) {
-    return this.tenantService.remove(id);
+  remove(@Param('id_tenant') id_tenant: string): Promise<TenantResponseDto> {
+    return this.tenantService.remove(id_tenant);
   }
 }

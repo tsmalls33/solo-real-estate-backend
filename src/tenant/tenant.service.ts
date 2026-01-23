@@ -5,16 +5,16 @@ import {
 } from '@nestjs/common';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
+import { TenantResponseDto } from './dto/tenant-response.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { TENANT_PUBLIC_SELECT, TENANT_WITH_USERS_SELECT } from './projections/tenant.projection';
-import { TenantEntity } from '@RealEstate/types'
 
 
 @Injectable()
 export class TenantService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async createTenant(createTenantDto: CreateTenantDto): Promise<TenantEntity> {
+  async createTenant(createTenantDto: CreateTenantDto): Promise<TenantResponseDto> {
     const isTenantExists = await this.prisma.tenant.findUnique({
       where: {
         name: createTenantDto.name,
@@ -30,18 +30,21 @@ export class TenantService {
     };
 
     return this.prisma.tenant.create({
-      data: dbTenant
+      data: dbTenant,
+      select: TENANT_PUBLIC_SELECT
     });
   }
 
-  async findAll(): Promise<TenantEntity[]> {
-    return this.prisma.tenant.findMany();
+  async findAll(): Promise<TenantResponseDto[]> {
+    return this.prisma.tenant.findMany({
+      select: TENANT_PUBLIC_SELECT
+    });
   }
 
-  async findOne(id_tenant: string) {
-    const foundTenant = await this.prisma.tenant.findUnique({
+  async findOne(id_tenant: string, includeUsers?: boolean): Promise<TenantResponseDto> {
+    const foundTenant: TenantResponseDto | null = await this.prisma.tenant.findUnique({
       where: { id_tenant },
-      select: TENANT_WITH_USERS_SELECT,
+      select: includeUsers ? TENANT_WITH_USERS_SELECT : TENANT_PUBLIC_SELECT,
     });
 
     if (!foundTenant)
@@ -50,7 +53,7 @@ export class TenantService {
     return foundTenant;
   }
 
-  async update(id_tenant: string, input: UpdateTenantDto) {
+  async update(id_tenant: string, input: UpdateTenantDto): Promise<TenantResponseDto> {
     // check if at least one field is provided for update
     if (
       !input.name &&
@@ -82,7 +85,7 @@ export class TenantService {
       throw new NotFoundException(`Tenant with id ${id_tenant} not found`); // returns 404 Not Found
 
     // update tenant with provided fields
-    const updatedTenant = await this.prisma.tenant.update({
+    const updatedTenant: TenantResponseDto = await this.prisma.tenant.update({
       where: { id_tenant },
       data: input,
       select: TENANT_PUBLIC_SELECT,
@@ -91,7 +94,7 @@ export class TenantService {
     return updatedTenant;
   }
 
-  async remove(id_tenant: string) {
+  async remove(id_tenant: string): Promise<TenantResponseDto> {
     // check if tenant exists
     const foundTenant = await this.prisma.tenant.findUnique({
       where: { id_tenant },
@@ -101,7 +104,7 @@ export class TenantService {
       throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
 
     // delete tenant
-    const deletedTenant = await this.prisma.tenant.delete({
+    const deletedTenant: TenantResponseDto = await this.prisma.tenant.delete({
       where: { id_tenant },
       select: TENANT_PUBLIC_SELECT,
     });
