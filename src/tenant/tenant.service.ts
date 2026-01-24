@@ -101,7 +101,7 @@ export class TenantService {
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant with '${id_tenant}' not found`); // returns 404 Not Found
 
     // delete tenant
     const deletedTenant: TenantResponseDto = await this.prisma.tenant.delete({
