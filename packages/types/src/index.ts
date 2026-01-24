@@ -1,2 +1,2 @@
-export * from './User.type'
-export * from './Tenant.type'
+export * from './User'
+export * from './Tenant'

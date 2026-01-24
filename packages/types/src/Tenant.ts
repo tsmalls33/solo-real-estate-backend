@@ -1,4 +1,4 @@
-import { UserResponseDto } from './User.type'
+import { UserResponseDto } from './User'
 
 export class TenantResonseDto {
   id_tenant!: string

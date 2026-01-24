@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
 import { ConfigService } from '@nestjs/config';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UserResponseDto, PrivateUserResponseDto } from './dto/user-response.dto';
 
 
 @Injectable()
@@ -79,13 +79,14 @@ export class UserService {
     return foundUser;
   }
 
-  async findByEmail(email: string): Promise<UserResponseDto> {
+  // WARNING: Why is this not an error, Promises UserResponseDto but returns that + passwordHash...
+  async findByEmail(email: string, includePrivate: boolean = false): Promise<PrivateUserResponseDto> {
     const foundUser = await this.prisma.user.findUnique({
       where: { email },
-      select: USER_AUTH_SELECT,
+      select: includePrivate ? USER_AUTH_SELECT : USER_PUBLIC_SELECT,
     });
     if (!foundUser) throw new NotFoundException('User not found');
-    return foundUser;
+    return foundUser as PrivateUserResponseDto
   }
 
   async update(id_user: string, input: UpdateUserDto): Promise<UserResponseDto> {

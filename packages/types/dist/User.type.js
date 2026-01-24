@@ -6,5 +6,7 @@ export const UserRoles = {
 };
 export class UserResponseDto {
 }
+export class PrivateUserResponseDto extends UserResponseDto {
+}
 export class CreateUserDto {
 }

@@ -1,10 +1,16 @@
-import { Tenant } from '@prisma/client';
-export declare class TenantEntity implements Tenant {
+import { UserResponseDto } from './User';
+export declare class TenantResonseDto {
     id_tenant: string;
     name: string;
-    customDomain: string | null;
-    id_plan: string | null;
-    createdAt: Date;
-    updatedAt: Date;
+    customDomain?: string | null;
+    id_plan?: string | null;
+    users?: UserResponseDto[] | null;
 }
-//# sourceMappingURL=Tenant.d.ts.map
+export declare class CreateTenantDto {
+    name: string;
+    customDomain?: string | null;
+    id_plan?: string | null;
+}
+export declare class GetTenantQueryParams {
+    includeUsers?: boolean;
+}

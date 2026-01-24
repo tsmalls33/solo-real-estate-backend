@@ -16,6 +16,11 @@ export class UserResponseDto {
   id_tenant?: string | null;
 }
 
+
+export class PrivateUserResponseDto extends UserResponseDto {
+  passwordHash?: string
+}
+
 export class CreateUserDto {
   email!: string;
   password!: string;

@@ -12,6 +12,9 @@ export declare class UserResponseDto {
     role: UserRoles;
     id_tenant?: string | null;
 }
+export declare class PrivateUserResponseDto extends UserResponseDto {
+    passwordHash?: string;
+}
 export declare class CreateUserDto {
     email: string;
     password: string;
