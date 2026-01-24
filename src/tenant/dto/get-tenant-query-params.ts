@@ -2,7 +2,7 @@ import { GetTenantQueryParams as SharedGetTenantQueryParams } from "@RealEstate/
 import { IsBoolean, IsOptional } from "class-validator";
 import { Transform } from "class-transformer";
 
-export class GetTenantQueryParams {
+export class GetTenantQueryParams implements SharedGetTenantQueryParams {
   @IsOptional()
   @Transform(({ value }) => {
     if (value === "true") return true;
