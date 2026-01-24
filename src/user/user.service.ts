@@ -8,8 +8,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { USER_PUBLIC_SELECT, USER_AUTH_SELECT } from './projections/user.projection';
-import { User } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
+import { UserResponseDto, PrivateUserResponseDto } from './dto/user-response.dto';
 
 
 @Injectable()
@@ -30,7 +30,7 @@ export class UserService {
   }
 
 
-  async createUser(input: CreateUserDto): Promise<Omit<User, 'passwordHash'>> {
+  async createUser(input: CreateUserDto): Promise<UserResponseDto> {
     /**
     * - Validate user input (handled by class-validator)
     * - Check if user already exists
@@ -62,13 +62,13 @@ export class UserService {
     });
   }
 
-  async findAll() {
+  async findAll(): Promise<UserResponseDto[]> {
     return await this.prisma.user.findMany({
       select: USER_PUBLIC_SELECT,
     });
   }
 
-  async findOne(id_user: string): Promise<Omit<User, 'passwordHash'>> {
+  async findOne(id_user: string): Promise<UserResponseDto> {
     const foundUser = await this.prisma.user.findUnique({
       where: { id_user },
       select: USER_PUBLIC_SELECT,
@@ -79,16 +79,17 @@ export class UserService {
     return foundUser;
   }
 
-  async findByEmail(email: string) {
+  // WARNING: Why is this not an error, Promises UserResponseDto but returns that + passwordHash...
+  async findByEmail(email: string, includePrivate: boolean = false): Promise<PrivateUserResponseDto> {
     const foundUser = await this.prisma.user.findUnique({
       where: { email },
-      select: USER_AUTH_SELECT,
+      select: includePrivate ? USER_AUTH_SELECT : USER_PUBLIC_SELECT,
     });
     if (!foundUser) throw new NotFoundException('User not found');
-    return foundUser;
+    return foundUser as PrivateUserResponseDto
   }
 
-  async update(id_user: string, input: UpdateUserDto) {
+  async update(id_user: string, input: UpdateUserDto): Promise<UserResponseDto> {
     // Check if at least one field is provided for update
     if (
       input.email === undefined &&
@@ -146,7 +147,7 @@ export class UserService {
     return updatedUser;
   }
 
-  async remove(id_user: string) {
+  async remove(id_user: string): Promise<UserResponseDto> {
     // Check if user exists
     const foundUser = await this.prisma.user.findUnique({
       where: { id_user },
@@ -164,7 +165,7 @@ export class UserService {
     return deletedUser;
   }
 
-  async hashPassword(password: string) {
+  async hashPassword(password: string): Promise<string> {
 
     const saltOrRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
     if (isNaN(saltOrRounds) || saltOrRounds < 4 || saltOrRounds > 15) {
@@ -175,7 +176,7 @@ export class UserService {
     return await bcrypt.hash(password, saltOrRounds);
   }
 
-  async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+  async verifyPassword(plainTextPassword: string, hashedPassword: string): Promise<Boolean> {
     return await bcrypt.compare(plainTextPassword, hashedPassword);
   }
 }

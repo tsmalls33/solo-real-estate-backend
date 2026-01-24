@@ -1,4 +1,4 @@
-import { UserResponseDto } from './User';
+import { UserResponseDto } from './User.type';
 export declare class TenantResonseDto {
     id_tenant: string;
     name: string;

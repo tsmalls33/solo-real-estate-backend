@@ -17,3 +17,5 @@ export class SignUpDto extends SignInDto {
   @IsUUID()
   id_tenant: string;
 }
+
+

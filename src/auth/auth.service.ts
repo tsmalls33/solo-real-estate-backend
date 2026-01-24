@@ -2,12 +2,14 @@ import {
   Injectable,
   UnauthorizedException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignInDto } from './dto/signin.dto';
+import { SignInDto, SignInResponseDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserResponseDto } from 'packages/types/dist';
 
 @Injectable()
 export class AuthService {
@@ -23,18 +25,19 @@ export class AuthService {
   ) { }
 
   // Type this return
-  async signIn(input: SignInDto) {
+  async signIn(input: SignInDto): Promise<SignInResponseDto> {
     // Deconstruct the DTO
     const { email, password } = input;
 
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email, true);
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    if (!user.passwordHash) throw new BadRequestException('User has no saved password')
 
     const isPasswordValid = await this.userService.verifyPassword(
       password,
-      user.passwordHash,
+      user.passwordHash!,
     );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
@@ -64,22 +67,20 @@ export class AuthService {
     );
 
     return {
-      data: {
-        user: {
-          id: user.id_user,
-          email: user.email,
-          fullName: user.fullName,
-          role: user.role,
-          id_tenant: user.id_tenant,
-        },
-        accessToken,
-        refreshToken,
+      user: {
+        id_user: user.id_user,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        id_tenant: user.id_tenant,
       },
-    };
+      accessToken,
+      refreshToken,
+    }
   }
 
   // Type this return
-  async signUp(input: SignUpDto) {
+  async signUp(input: SignUpDto): Promise<UserResponseDto> {
     const { email, password, fullName, role, id_tenant } = input;
 
     // Check if the user already exists --> This is handled by the UserService.create
@@ -93,11 +94,8 @@ export class AuthService {
       id_tenant,
     });
 
-    return {
-      data: {
-        newUser,
-      },
-    };
+    return newUser
+
   }
 
   async refreshToken(refreshToken: string) {

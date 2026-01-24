@@ -16,8 +16,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRoles } from '@RealEstate/types'
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { ParseUUIDPipe } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('user')
@@ -40,23 +39,23 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
+  @Get(':id_user')
   @ResponseMessage('User fetched successfully')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  findOne(@Param('id_user') id_user: string) {
+    return this.userService.findOne(id_user);
   }
 
-  @Put(':id')
+  @Put(':id_user')
   @ResponseMessage('User updated successfully')
-  update(@Param('id') id: string, @Body() input: UpdateUserDto) {
-    return this.userService.update(id, input);
+  update(@Param('id_user') id_user: string, @Body() input: UpdateUserDto) {
+    return this.userService.update(id_user, input);
   }
 
-  @Delete(':id')
+  @Delete(':id_user')
   @ResponseMessage('User deleted successfully')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.SUPERADMIN)
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  remove(@Param('id_user') id_user: string) {
+    return this.userService.remove(id_user);
   }
 }
