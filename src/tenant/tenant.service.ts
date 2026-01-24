@@ -48,7 +48,7 @@ export class TenantService {
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant with id '${id_tenant}' not found`); // returns 404 Not Found
 
     return foundTenant as TenantResponseDto
   }
@@ -82,7 +82,7 @@ export class TenantService {
     });
 
     if (!foundTenant)
-      throw new NotFoundException(`Tenant with id ${id_tenant} not found`); // returns 404 Not Found
+      throw new NotFoundException(`Tenant with id '${id_tenant}' not found`); // returns 404 Not Found
 
     // update tenant with provided fields
     const updatedTenant: TenantResponseDto = await this.prisma.tenant.update({
