@@ -1,10 +1,14 @@
 import { GetTenantQueryParams as SharedGetTenantQueryParams } from "@RealEstate/types";
-import { IsBooleanString, IsOptional } from "class-validator";
+import { IsBoolean, IsOptional } from "class-validator";
 import { Transform } from "class-transformer";
 
-export class GetTenantQueryParams implements SharedGetTenantQueryParams {
+export class GetTenantQueryParams {
   @IsOptional()
-  @IsBooleanString()
-  @Transform(({ value }) => value === 'ture')
-  includeUsers?: boolean
+  @Transform(({ value }) => {
+    if (value === "true") return true;
+    if (value === "false") return false;
+    return value; // keep original so validator can fail
+  })
+  @IsBoolean()
+  includeUsers?: boolean;
 }

@@ -41,8 +41,8 @@ export class TenantService {
     });
   }
 
-  async findOne(id_tenant: string, includeUsers?: boolean): Promise<TenantResponseDto> {
-    const foundTenant: TenantResponseDto | null = await this.prisma.tenant.findUnique({
+  async findOne(id_tenant: string, includeUsers: boolean = false): Promise<TenantResponseDto> {
+    const foundTenant = await this.prisma.tenant.findUnique({
       where: { id_tenant },
       select: includeUsers ? TENANT_WITH_USERS_SELECT : TENANT_PUBLIC_SELECT,
     });
@@ -50,7 +50,7 @@ export class TenantService {
     if (!foundTenant)
       throw new NotFoundException(`Tenant withid_tenant${id_tenant} not found`); // returns 404 Not Found
 
-    return foundTenant;
+    return foundTenant as TenantResponseDto
   }
 
   async update(id_tenant: string, input: UpdateTenantDto): Promise<TenantResponseDto> {
