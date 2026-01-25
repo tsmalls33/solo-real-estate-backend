@@ -1,16 +1,12 @@
-import type { PrismaClient, Tenant, User } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { UserRoles } from '@prisma/client';
 import { seedPasswordHash } from './_password';
-
-type SeedTenantsResult = Record<string, Tenant> & {
-  default: Tenant;
-  devomart: Tenant;
-};
+import { SeedTenantsResult, SeeUsersResult } from './seed-types';
 
 export async function seedUsers(
   prisma: PrismaClient,
   tenants: SeedTenantsResult,
-): Promise<Record<string, User>> {
+): Promise<SeeUsersResult> {
   const passwordHash = await seedPasswordHash('Password123!'); // hash once, reuse [web:147]
 
   const superadmin = await prisma.user.upsert({

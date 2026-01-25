@@ -1,6 +1,7 @@
 import type { PrismaClient, Tenant } from '@prisma/client';
+import { SeedTenantsResult } from './seed-types';
 
-export async function seedTenants(prisma: PrismaClient): Promise<Record<string, Tenant>> {
+export async function seedTenants(prisma: PrismaClient): Promise<SeedTenantsResult> {
   // Use upsert because Tenant.name is unique
   const defaultTenant = await prisma.tenant.upsert({
     where: { name: 'Default Tenant' },
