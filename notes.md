@@ -41,8 +41,16 @@
 | Field | Type | Description |
 | ------------- | -------------- | - |
 | id_property | UUID PK | Property id |
+| propertyName | string | |
 | propertyAddress | string | Property address |
 | propertyDescription | text | Description of the property |
+| reservations | Reservation[] | list from reservation table |
+| costs | Cost[] | list from costs table |
+| photos | string[] | url for image files |
+| coverImage | string | url for cover image |
+| feeRules | FeeRules[] | Enum or list forom a table |
+| agentFeePercentage | number | percentage fee for the agent for this property |
+| propertyStats | PropertyStatsObject | from stats table |
 | id_owner | UUID FK | `id_user` of the owner, nullable |
 | salePrice | number | Price if on sale, nullable |
 | saleType | ENUM('rent', 'sale') | type of property and price |
@@ -62,5 +70,79 @@
 | floorNumber | number | Floor level in building |
 | hasElevator | boolean | Building has elevator |
 | hasGarage | boolean | Parking garage availability |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### reservations
+
+| Field | Type | Description |
+| - | - | - |
+| id_reservation | UUID PK | Reservation id |
+| clientName | string | Name of the client |
+| startDate | date | Start date of reservation |
+| endDate | date | End date of reservation |
+| totalPrice | number | Total price of the reservation |
+| numberbOfGuests | number | Number of guests |
+| costs | Cost[] | List from costs table |
+| platform | enum | Platform (BOOKING_COM, AIRBNB, OTHER) |
+| id_property | UUID FK | References `id_property` from properties table |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### costs
+
+| Field | Type | Description |
+| - | - | - |
+| id_cost | UUID PK | Cost id |
+| id_property | UUID FK | References `id_property` from properties table |
+| id_reservation | UUID FK | References `id_reservation` from reservations table |
+| costType | enum | Type (CLEANING, TAX, PLATFORM_FEE, etc.) |
+| date | date | Date of the cost |
+| amount | decimal | Amount of the cost |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### agentPayments
+
+| Field | Type | Description |
+| - | - | - |
+| id_agent_payment | Integer PK | Payment id |
+| dueDate | Date | Due date |
+| amount | Float | Amount |
+| isPaid | Boolean | Paid status (default false) |
+| id_user | Integer FK | References `user.id` |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### photos
+
+| Field | Type | Description |
+| - | - | - |
+| id_photo | Integer PK | Photo id |
+| filename | String(100) | Filename (not null) |
+| id_property | Integer FK | References `property.id` |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### clients
+
+| Field | Type | Description |
+| - | - | - |
+| id_client | Integer PK | Client id |
+| firstName | String(40) | First name (not null) |
+| lastName | String(40) | Last name |
+| email | String(30) | Email (unique) |
+| phoneNb | String(30) | Phone number |
+| notes | Text | Notes |
+| id_user | Integer FK | References `user.id` |
+| createdAt | datetime | Record creation timestamp |
+| updatedAt | datetime | Last update timestamp |
+
+### feeRules
+
+| Field | Type | Description |
+| - | - | - |
+| id_fee_rule | Integer PK | Rule id |
+| name | String | Name (unique, not null) |
 | createdAt | datetime | Record creation timestamp |
 | updatedAt | datetime | Last update timestamp |
