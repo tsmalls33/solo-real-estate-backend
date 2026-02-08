@@ -8,32 +8,241 @@ datasource db {
 }
 
 model User {
-  id_user            String   @id @default(uuid())
-  email         String   @unique
+  id_user      String    @id @default(uuid())
+  email        String    @unique @db.VarChar(255)
   passwordHash String
-  fullName      String?
-  role          UserRoles     @default(CLIENT)
-  id_tenant     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now()) @updatedAt
-  
-  tenant        Tenant?  @relation("TenantUsers", fields: [id_tenant], references: [id_tenant])
+  fullName     String?   @db.VarChar(100)
+  role         UserRoles @default(CLIENT)
+  id_tenant    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  isDeleted    Boolean   @default(false)
+
+  tenant          Tenant?    @relation("TenantUsers", fields: [id_tenant], references: [id_tenant])
+  userProperties  Property[] @relation("UserProperties")
+  agentProperties Property[] @relation("AgentProperties")
+
+  // Relations
+  agentPayments AgentPayment[]
+  clients       Client[]
+
+  @@index([id_tenant])
 }
 
 model Tenant {
-  id_tenant            String   @id @default(uuid())
-  name          String   @unique
-  customDomain String?
-  users         User[]   @relation("TenantUsers")
-  id_plan       String?
+  id_tenant    String   @id @default(uuid())
+  name         String   @unique
+  customDomain String?  @unique @db.VarChar(255)
+  id_plan      String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
+  isDeleted    Boolean  @default(false)
+
+  users      User[]     @relation("TenantUsers")
+  plan       Plan?      @relation(fields: [id_plan], references: [id_plan])
+  properties Property[] @relation("TenantProperties")
+}
+
+model Plan {
+  id_plan  String   @id @default(uuid())
+  name     String   @unique
+  tenants  Tenant[]
+  isActive Boolean  @default(true)
+}
+
+model Property {
+  id_property         String         @id @default(uuid())
+  propertyName        String         @unique
+  propertyAddress     String         @db.VarChar(500)
+  propertyDescription String?        @db.VarChar(2000)
+  coverImage          String?
+  agentFeePercentage  Decimal?       @db.Decimal(5, 4)
+  salePrice           Decimal?       @db.Decimal(12, 2)
+  saleType            SaleType?
+  id_owner            String?
+  id_agent            String?
+  id_tenant           String?
+  status              PropertyStatus @default(AVAILABLE_RENTAL)
+  propertyStats       PropertyStats?
+  isDeleted           Boolean        @default(false)
+
+  owner        User?   @relation("UserProperties", fields: [id_owner], references: [id_user])
+  agent        User?   @relation("AgentProperties", fields: [id_agent], references: [id_user])
+  tenantAgency Tenant? @relation("TenantProperties", fields: [id_tenant], references: [id_tenant])
+
+  reservations Reservation[]
+  costs        Cost[]
+  photos       Photo[]
+  feeRules     FeeRule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([id_tenant])
+  @@index([id_owner])
+  @@index([saleType])
+}
+
+model PropertyStats {
+  id_property_stats String       @id @default(uuid())
+  id_property       String       @unique
+  numberOfBedrooms  Int
+  numberOfBathrooms Int
+  sizeSquareMeters  Decimal      @db.Decimal(10, 2)
+  propertyType      PropertyType
+  location          String
+  yearBuilt         Int
+  floorNumber       Int?
+  hasElevator       Boolean
+  hasGarage         Boolean
+  isDeleted         Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @default(now()) @updatedAt
+
+  property Property @relation(fields: [id_property], references: [id_property])
+
+  @@index([id_property])
+}
+
+model Reservation {
+  id_reservation String            @id @default(uuid())
+  clientName     String
+  numberOfGuests Int
+  startDate      DateTime
+  endDate        DateTime
+  totalCost      Decimal           @db.Decimal(10, 2)
+  platform       Platform
+  status         ReservationStatus @default(UPCOMING)
+  dateCancelled  DateTime?
+
+  id_property String
+
+  property Property @relation(fields: [id_property], references: [id_property])
+  costs    Cost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([id_property, startDate])
+  @@index([startDate, endDate])
+}
+
+model Cost {
+  id_cost  String   @id @default(uuid())
+  costType CostType
+  date     DateTime
+  amount   Decimal  @db.Decimal(10, 2)
+
+  id_property    String?
+  id_reservation String?
+
+  property    Property?    @relation(fields: [id_property], references: [id_property])
+  reservation Reservation? @relation(fields: [id_reservation], references: [id_reservation])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([id_property])
+  @@index([id_reservation])
+}
+
+model AgentPayment {
+  id_agent_payment String   @id @default(uuid())
+  dueDate          DateTime
+  amount           Decimal  @db.Decimal(10, 2)
+  isPaid           Boolean  @default(false)
+  id_user          String
+
+  user User @relation(fields: [id_user], references: [id_user])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Photo {
+  id_photo String  @id @default(uuid())
+  filename String  @db.VarChar(100)
+  isActive Boolean @default(true)
+
+  id_property String
+
+  property Property @relation(fields: [id_property], references: [id_property])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([id_property])
+}
+
+model Client {
+  id_client   String  @id @default(uuid())
+  firstName   String  @db.VarChar(40)
+  lastName    String? @db.VarChar(40)
+  email       String? @unique @db.VarChar(255)
+  phoneNumber String? @db.VarChar(30)
+  notes       String? @db.Text
+  id_user     String
+  isActive    Boolean @default(true)
+
+  user User @relation(fields: [id_user], references: [id_user])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model FeeRule {
+  id_fee_rule String  @id @default(uuid())
+  name        String  @unique
+  isActive    Boolean @default(true)
+
+  properties Property[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 enum UserRoles {
-    ADMIN
-    SUPERADMIN
-    CLIENT
-    EMPLOYEE
-  }
+  ADMIN
+  SUPERADMIN
+  CLIENT
+  EMPLOYEE
+}
 
+enum SaleType {
+  RENT
+  SALE
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+}
+
+enum Platform {
+  BOOKING
+  AIRBNB
+  OTHER
+}
+
+enum CostType {
+  CLEANING
+  TAX
+  PLATFORM_FEE
+  OTHER
+}
+
+enum ReservationStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PropertyStatus {
+  AVAILABLE_SALE
+  AVAILABLE_RENTAL
+  INACTIVE
+  SOLD
+  UNDER_RENTAL
+}
