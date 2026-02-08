@@ -3,11 +3,12 @@
 - [x] Authentication & Authorization with RBAC
 - [x] Create guard
 - [x] Tenant routes
-- [ ] Model responses. Normalize and type the responses throughout the entire app
 - [x] Add seed users and tenants
 - [ ] Add the repository layer?
 - [x] Fix all the type errors from the renaming and types package
 - [ ] Write spec tests
+- [ ] Separate service and repository for current modules (before making new ones)
+- [ ] Add theme column to Tenant table or add TenantTheme table
 
 ## DB Models
 

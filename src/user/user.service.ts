@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -79,7 +80,6 @@ export class UserService {
     return foundUser;
   }
 
-  // WARNING: Why is this not an error, Promises UserResponseDto but returns that + passwordHash...
   async findByEmail(email: string, includePrivate: boolean = false): Promise<PrivateUserResponseDto> {
     const foundUser = await this.prisma.user.findUnique({
       where: { email },
@@ -97,7 +97,7 @@ export class UserService {
       input.role === undefined &&
       input.id_tenant === undefined
     ) {
-      throw new ConflictException('No fields to update');
+      throw new BadRequestException('No fields to update');
     }
 
     // If email is being updated, check if it already exists
