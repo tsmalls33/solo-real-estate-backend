@@ -1,7 +1,7 @@
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { PlanPeriod } from '../enums/plan-period.enum';
+import { PlanPeriod } from '@RealEstate/types';
 
 export class CreatePlanDto {
   @ApiProperty({ required: true, example: 'Premium' })
