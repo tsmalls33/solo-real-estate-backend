@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRoles } from '@RealEstate/types'
+import { UserRoles } from '@RealEstate/types';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ApiTags } from '@nestjs/swagger';
@@ -43,6 +43,14 @@ export class UserController {
   @ResponseMessage('User fetched successfully')
   findOne(@Param('id_user') id_user: string) {
     return this.userService.findOne(id_user);
+  }
+
+  @Get(':id_user/agent-payments')
+  @ResponseMessage('Agent payments fetched successfully')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoles.SUPERADMIN)
+  findAgentPayments(@Param('id_user') id_user: string) {
+    return this.userService.findAgentPayments(id_user);
   }
 
   @Put(':id_user')

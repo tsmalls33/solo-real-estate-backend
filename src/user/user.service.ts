@@ -120,6 +120,12 @@ export class UserService {
     return await this.userRepository.delete(id_user);
   }
 
+  async findAgentPayments(id_user: string) {
+    const userExists = await this.userRepository.existsById(id_user);
+    if (!userExists) throw new NotFoundException('User not found');
+    return this.userRepository.findAgentPayments(id_user);
+  }
+
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, this.saltOrRounds);
   }

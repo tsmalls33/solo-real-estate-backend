@@ -12,6 +12,7 @@ import { ThemeModule } from './theme/theme.module';
 import { PlanModule } from './plan/plan.module';
 import { PropertyModule } from './property/property.module';
 import { ClientModule } from './client/client.module';
+import { AgentPaymentModule } from './agent-payment/agent-payment.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ClientModule } from './client/client.module';
     PlanModule,
     PropertyModule,
     ClientModule,
+    AgentPaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, RolesGuard],
