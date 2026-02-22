@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { ThemeModule } from './theme/theme.module';
+import { PropertyModule } from './property/property.module';
 
 @Module({
   imports: [
@@ -21,8 +22,9 @@ import { ThemeModule } from './theme/theme.module';
     TenantModule,
     AuthModule,
     ThemeModule,
+    PropertyModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, RolesGuard],
 })
-export class AppModule { }
+export class AppModule {}
