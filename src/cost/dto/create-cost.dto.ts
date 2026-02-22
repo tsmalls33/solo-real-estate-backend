@@ -8,16 +8,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CostType } from '@prisma/client';
+import {
+  CostType,
+  CreateCostDto as SharedCreateCostDto,
+} from '@RealEstate/types';
 import { AtLeastOneOf } from 'src/utils/validators/at-least-one.validator';
 
-/**
- * Used by POST /costs (direct creation).
- * @AtLeastOneOf ensures at least one FK is present before hitting the service.
- * Sub-resource endpoints (POST /properties/:id/costs, POST /reservations/:id/costs)
- * use their own slimmer DTOs and inject the FK from the URL param.
- */
-export class CreateCostDto {
+export class CreateCostDto implements SharedCreateCostDto {
   @ApiProperty({ enum: CostType })
   @IsEnum(CostType)
   costType: CostType;

@@ -1,9 +1,12 @@
 import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CostType } from '@prisma/client';
+import {
+  CostType,
+  GetCostsQueryParams as SharedGetCostsQueryParams,
+} from '@RealEstate/types';
 
-export class GetCostsQueryParams {
+export class GetCostsQueryParams implements SharedGetCostsQueryParams {
   @ApiProperty({ required: false, enum: CostType })
   @IsOptional()
   @IsEnum(CostType)

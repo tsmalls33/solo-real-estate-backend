@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CostType, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { CostType } from '@RealEstate/types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { COST_SELECT } from './projections/cost.projection';
 
@@ -21,7 +22,7 @@ export class CostRepository {
     const { costType, id_property, id_reservation, page, limit } = params;
 
     const where: Prisma.CostWhereInput = {
-      ...(costType && { costType }),
+      ...(costType && { costType: costType as any }),
       ...(id_property && { id_property }),
       ...(id_reservation && { id_reservation }),
     };
@@ -69,10 +70,6 @@ export class CostRepository {
     });
   }
 
-  /**
-   * Returns the id_property of the given reservation, or null if not found.
-   * Used for ownership cross-checks in CostService.
-   */
   async findReservationProperty(id_reservation: string): Promise<string | null> {
     const res = await this.prisma.reservation.findUnique({
       where: { id_reservation },

@@ -8,14 +8,12 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CostType } from '@prisma/client';
+import {
+  CostType,
+  UpdateCostDto as SharedUpdateCostDto,
+} from '@RealEstate/types';
 
-/**
- * No @AtLeastOneOf here — PATCH only sends changed fields.
- * CostService.update() merges the incoming body with the existing DB record
- * before validating the invariant (at least one FK must remain non-null).
- */
-export class UpdateCostDto {
+export class UpdateCostDto implements SharedUpdateCostDto {
   @ApiProperty({ enum: CostType, required: false })
   @IsOptional()
   @IsEnum(CostType)

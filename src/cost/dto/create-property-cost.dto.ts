@@ -8,14 +8,12 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CostType } from '@prisma/client';
+import {
+  CostType,
+  CreatePropertyCostDto as SharedCreatePropertyCostDto,
+} from '@RealEstate/types';
 
-/**
- * Used by POST /properties/:id_property/costs.
- * id_property is injected from the URL — no @AtLeastOneOf needed.
- * id_reservation is optional (links the cost to a specific reservation on that property).
- */
-export class CreatePropertyCostDto {
+export class CreatePropertyCostDto implements SharedCreatePropertyCostDto {
   @ApiProperty({ enum: CostType })
   @IsEnum(CostType)
   costType: CostType;

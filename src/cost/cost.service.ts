@@ -3,12 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CostType, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { CostType } from '@RealEstate/types';
 import { CostRepository } from './cost.repository';
 import { GetCostsQueryParams } from './dto/get-costs-query-params';
 import { UpdateCostDto } from './dto/update-cost.dto';
 
-/** Flexible input accepted by create() — covers all calling contexts. */
 interface CreateCostData {
   costType: CostType;
   date: string;
@@ -21,19 +21,6 @@ interface CreateCostData {
 export class CostService {
   constructor(private readonly costRepository: CostRepository) {}
 
-  /**
-   * Creates a cost record.
-   *
-   * Invariant enforcement (service layer):
-   * - If id_reservation is provided without id_property: auto-derive id_property
-   *   from the reservation (reservation.id_property).
-   * - If both are provided: cross-check that id_property matches the reservation's
-   *   property — throws BadRequestException on mismatch.
-   *
-   * Note: the @AtLeastOneOf guard on CreateCostDto already catches the case where
-   * both are absent for direct POST /costs. Sub-resource controllers always supply
-   * their own FK from the URL, so that check is not duplicated here.
-   */
   async create(data: CreateCostData) {
     let { id_property, id_reservation } = data;
 
@@ -53,7 +40,6 @@ export class CostService {
         );
       }
 
-      // Auto-derive id_property so the cost is always anchored to a property
       id_property = reservationProperty;
     }
 
@@ -82,13 +68,6 @@ export class CostService {
     return cost;
   }
 
-  /**
-   * Updates a cost record.
-   *
-   * Ownership invariant is re-checked after merging the incoming DTO fields
-   * with the existing DB values, so a PATCH that only changes `amount` still
-   * passes if the existing FKs are valid.
-   */
   async update(id_cost: string, dto: UpdateCostDto) {
     const existing = await this.costRepository.existsById(id_cost);
     if (!existing) throw new NotFoundException(`Cost '${id_cost}' not found`);

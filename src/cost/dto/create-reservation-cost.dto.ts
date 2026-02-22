@@ -1,18 +1,12 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsNumber,
-  IsPositive,
-} from 'class-validator';
+import { IsDateString, IsEnum, IsNumber, IsPositive } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { CostType } from '@prisma/client';
+import {
+  CostType,
+  CreateReservationCostDto as SharedCreateReservationCostDto,
+} from '@RealEstate/types';
 
-/**
- * Used by POST /reservations/:id_reservation/costs.
- * id_reservation injected from URL; id_property is auto-derived from the reservation.
- */
-export class CreateReservationCostDto {
+export class CreateReservationCostDto implements SharedCreateReservationCostDto {
   @ApiProperty({ enum: CostType })
   @IsEnum(CostType)
   costType: CostType;
