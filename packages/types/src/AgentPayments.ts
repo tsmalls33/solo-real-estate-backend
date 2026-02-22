@@ -6,3 +6,17 @@ export class GetAgentPaymentsParams {
   page?: number;
   limit?: number;
 }
+
+export class CreateAgentPaymentDto {
+  dueDate!: string;
+  amount!: number;
+  isPaid?: boolean;
+  id_user!: string;
+}
+
+export class UpdateAgentPaymentDto {
+  dueDate?: string;
+  amount?: number;
+  isPaid?: boolean;
+  id_user?: string;
+}

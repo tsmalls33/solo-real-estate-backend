@@ -1,8 +1,9 @@
 import { IsBoolean, IsDateString, IsNumber, IsOptional, IsPositive, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateAgentPaymentDto as SharedCreateAgentPaymentDto } from '@RealEstate/types';
 
-export class CreateAgentPaymentDto {
+export class CreateAgentPaymentDto implements SharedCreateAgentPaymentDto {
   @ApiProperty({ example: '2026-03-01' })
   @IsDateString()
   dueDate: string;
