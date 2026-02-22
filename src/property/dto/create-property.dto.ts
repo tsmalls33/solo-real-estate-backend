@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { SaleType } from '@prisma/client';
+import { PropertyStatus, SaleType } from '@prisma/client';
 
 export class CreatePropertyDto {
   @ApiProperty({ example: 'Casa Bonita' })
@@ -47,6 +47,15 @@ export class CreatePropertyDto {
   @IsEnum(SaleType)
   @IsOptional()
   saleType?: SaleType;
+
+  @ApiProperty({
+    required: false,
+    enum: PropertyStatus,
+    default: PropertyStatus.AVAILABLE_RENTAL,
+  })
+  @IsEnum(PropertyStatus)
+  @IsOptional()
+  status?: PropertyStatus;
 
   @ApiProperty({ required: false })
   @IsUUID()

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { GetPropertiesQueryParams } from './dto/get-properties-query-params';
@@ -23,6 +24,7 @@ export class PropertyService {
       }),
       ...(dto.salePrice !== undefined && { salePrice: dto.salePrice }),
       ...(dto.saleType && { saleType: dto.saleType }),
+      ...(dto.status && { status: dto.status }),
       ...(dto.id_owner && { id_owner: dto.id_owner }),
       ...(dto.id_agent && { id_agent: dto.id_agent }),
       ...(dto.id_tenant && { id_tenant: dto.id_tenant }),
@@ -52,23 +54,10 @@ export class PropertyService {
     if (!exists)
       throw new NotFoundException(`Property with id '${id_property}' not found`);
 
-    const data: Record<string, any> = {};
-    if (dto.propertyName !== undefined) data.propertyName = dto.propertyName;
-    if (dto.propertyAddress !== undefined)
-      data.propertyAddress = dto.propertyAddress;
-    if (dto.propertyDescription !== undefined)
-      data.propertyDescription = dto.propertyDescription;
-    if (dto.coverImage !== undefined) data.coverImage = dto.coverImage;
-    if (dto.agentFeePercentage !== undefined)
-      data.agentFeePercentage = dto.agentFeePercentage;
-    if (dto.salePrice !== undefined) data.salePrice = dto.salePrice;
-    if (dto.saleType !== undefined) data.saleType = dto.saleType;
-    if (dto.status !== undefined) data.status = dto.status;
-    if (dto.id_owner !== undefined) data.id_owner = dto.id_owner;
-    if (dto.id_agent !== undefined) data.id_agent = dto.id_agent;
-    if (dto.id_tenant !== undefined) data.id_tenant = dto.id_tenant;
-
-    return this.propertyRepository.update(id_property, data);
+    return this.propertyRepository.update(
+      id_property,
+      dto as Prisma.PropertyUncheckedUpdateInput,
+    );
   }
 
   async remove(id_property: string) {
