@@ -12,23 +12,7 @@ export class PropertyService {
   constructor(private readonly propertyRepository: PropertyRepository) {}
 
   async create(dto: CreatePropertyDto) {
-    return this.propertyRepository.create({
-      propertyName: dto.propertyName,
-      propertyAddress: dto.propertyAddress,
-      ...(dto.propertyDescription && {
-        propertyDescription: dto.propertyDescription,
-      }),
-      ...(dto.coverImage && { coverImage: dto.coverImage }),
-      ...(dto.agentFeePercentage !== undefined && {
-        agentFeePercentage: dto.agentFeePercentage,
-      }),
-      ...(dto.salePrice !== undefined && { salePrice: dto.salePrice }),
-      ...(dto.saleType && { saleType: dto.saleType }),
-      ...(dto.status && { status: dto.status }),
-      ...(dto.id_owner && { id_owner: dto.id_owner }),
-      ...(dto.id_agent && { id_agent: dto.id_agent }),
-      ...(dto.id_tenant && { id_tenant: dto.id_tenant }),
-    });
+    return this.propertyRepository.create(dto as Prisma.PropertyUncheckedCreateInput);
   }
 
   async findAll(query: GetPropertiesQueryParams) {
