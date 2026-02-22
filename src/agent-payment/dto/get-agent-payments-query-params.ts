@@ -1,8 +1,9 @@
 import { IsBoolean, IsDateString, IsOptional, IsUUID } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { GetAgentPaymentsParams } from '@RealEstate/types';
 
-export class GetAgentPaymentsQueryParams {
+export class GetAgentPaymentsQueryParams implements GetAgentPaymentsParams {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsBoolean()
