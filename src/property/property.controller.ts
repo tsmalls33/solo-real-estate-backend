@@ -22,15 +22,21 @@ import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { GetPropertiesQueryParams } from './dto/get-properties-query-params';
 import { GetReservationsQueryParams } from './dto/get-reservations-query-params';
-import { GetCostsQueryParams } from './dto/get-costs-query-params';
 import { PropertyService } from './property.service';
+import { CostService } from '../cost/cost.service';
+import { CreatePropertyCostDto } from '../cost/dto/create-property-cost.dto';
+import { UpdateCostDto } from '../cost/dto/update-cost.dto';
+import { GetCostsQueryParams } from '../cost/dto/get-costs-query-params';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Roles(UserRoles.SUPERADMIN)
 @ApiTags('Property')
 @Controller('properties')
 export class PropertyController {
-  constructor(private readonly propertyService: PropertyService) {}
+  constructor(
+    private readonly propertyService: PropertyService,
+    private readonly costService: CostService,
+  ) {}
 
   /** POST /properties */
   @Post()
@@ -48,7 +54,7 @@ export class PropertyController {
     return this.propertyService.findAll(query);
   }
 
-  /** GET /properties/:id_property — full detail with stats, photos, feeRules */
+  /** GET /properties/:id_property */
   @Get(':id_property')
   @ResponseMessage('Property fetched successfully')
   findOne(@Param('id_property') id_property: string) {
@@ -65,7 +71,7 @@ export class PropertyController {
     return this.propertyService.update(id_property, updatePropertyDto);
   }
 
-  /** DELETE /properties/:id_property — soft-delete (isDeleted=true) */
+  /** DELETE /properties/:id_property */
   @Delete(':id_property')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Property deleted successfully')
@@ -73,7 +79,7 @@ export class PropertyController {
     return this.propertyService.remove(id_property);
   }
 
-  /** GET /properties/:id_property/reservations?startDate=&endDate=&status=&platform= */
+  /** GET /properties/:id_property/reservations */
   @Get(':id_property/reservations')
   @ResponseMessage('Reservations fetched successfully')
   findReservations(
@@ -83,13 +89,41 @@ export class PropertyController {
     return this.propertyService.findReservations(id_property, query);
   }
 
-  /** GET /properties/:id_property/costs?startDate=&endDate=&costType=&id_reservation= */
+  /** GET /properties/:id_property/costs */
   @Get(':id_property/costs')
   @ResponseMessage('Costs fetched successfully')
   findCosts(
     @Param('id_property') id_property: string,
     @Query(new ValidationPipe({ transform: true })) query: GetCostsQueryParams,
   ) {
-    return this.propertyService.findCosts(id_property, query);
+    return this.costService.findAll({ ...query, id_property });
+  }
+
+  /** POST /properties/:id_property/costs */
+  @Post(':id_property/costs')
+  @ResponseMessage('Cost created successfully')
+  createCost(
+    @Param('id_property') id_property: string,
+    @Body() dto: CreatePropertyCostDto,
+  ) {
+    return this.costService.create({ ...dto, id_property });
+  }
+
+  /** PATCH /properties/:id_property/costs/:id_cost */
+  @Patch(':id_property/costs/:id_cost')
+  @ResponseMessage('Cost updated successfully')
+  updateCost(
+    @Param('id_cost') id_cost: string,
+    @Body() dto: UpdateCostDto,
+  ) {
+    return this.costService.update(id_cost, dto);
+  }
+
+  /** DELETE /properties/:id_property/costs/:id_cost */
+  @Delete(':id_property/costs/:id_cost')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Cost deleted successfully')
+  deleteCost(@Param('id_cost') id_cost: string) {
+    return this.costService.remove(id_cost);
   }
 }

@@ -11,8 +11,8 @@ import { RolesGuard } from './auth/roles.guard';
 import { ThemeModule } from './theme/theme.module';
 import { PlanModule } from './plan/plan.module';
 import { PropertyModule } from './property/property.module';
-import { ClientModule } from './client/client.module';
-import { AgentPaymentModule } from './agent-payment/agent-payment.module';
+import { CostModule } from './cost/cost.module';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -27,8 +27,8 @@ import { AgentPaymentModule } from './agent-payment/agent-payment.module';
     ThemeModule,
     PlanModule,
     PropertyModule,
-    ClientModule,
-    AgentPaymentModule,
+    CostModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, RolesGuard],
