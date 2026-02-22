@@ -10,6 +10,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { ThemeModule } from './theme/theme.module';
 import { PlanModule } from './plan/plan.module';
+import { PropertyModule } from './property/property.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PlanModule } from './plan/plan.module';
     AuthModule,
     ThemeModule,
     PlanModule,
+    PropertyModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, RolesGuard],
